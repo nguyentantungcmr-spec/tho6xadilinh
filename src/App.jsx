@@ -118,7 +118,7 @@ export default function App() {
   return (
     <div className={`min-h-screen bg-slate-50 flex flex-col ${seniorMode ? 'senior-mode' : ''}`}>
       
-      {/* HEADER NAVIGATION */}
+      {/* 1. HEADER NAVIGATION TRÊN CÙNG */}
       <Header
         user={user}
         role={role}
@@ -131,10 +131,107 @@ export default function App() {
         onToggleSidebar={() => setIsOpenMobileSidebar(!isOpenMobileSidebar)}
       />
 
-      {/* MAIN CONTAINER WITH 6 ACTION CARDS SIDEBAR */}
+      {/* 2. HERO BANNER THIẾT KẾ NẰM TRÊN CÙNG (FULL WIDTH TOP BANNER) */}
+      <section className="relative bg-slate-900 text-white overflow-hidden shadow-xl border-b border-slate-800">
+        
+        {/* BANNER BACKGROUND IMAGE */}
+        <div className="absolute inset-0 z-0 opacity-40 mix-blend-luminosity hover:mix-blend-normal transition duration-700">
+          <img 
+            src="/banner_thon6_dilinh.jpg" 
+            alt="Banner Cộng đồng Thôn 6 Xã Di Linh" 
+            className="w-full h-full object-cover object-center scale-105"
+            onError={(e) => {
+              e.target.style.display = 'none';
+            }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-900/90 to-blue-950/85"></div>
+        </div>
+
+        {/* BANNER CONTENT */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            
+            <div className="lg:col-span-8 space-y-4">
+              
+              {/* SLOGAN BADGE */}
+              <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-gradient-to-r from-amber-500/20 to-emerald-500/20 border border-amber-400/40 backdrop-blur-md shadow-md">
+                <Sparkles className="w-4 h-4 text-amber-400 animate-pulse" />
+                <span className="text-xs sm:text-sm font-black tracking-wider text-amber-300 uppercase">
+                  Học số – Giúp nhau – Lan tỏa
+                </span>
+              </div>
+
+              {/* MAIN TITLE BANNER */}
+              <div>
+                <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-none text-white drop-shadow-md">
+                  CỘNG ĐỒNG THÔN 6 <br />
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-300">
+                    XÃ DI LINH
+                  </span>
+                </h1>
+                <p className="text-amber-400 font-extrabold text-sm sm:text-lg mt-2 tracking-wide flex items-center gap-2">
+                  <span>✨ Nền tảng Chuyển đổi số & Học tập Cộng đồng</span>
+                </p>
+              </div>
+
+              <p className="text-slate-300 text-xs sm:text-sm leading-relaxed max-w-2xl font-medium">
+                Cầm tay chỉ việc cho bà con: Video quét QR, dùng Zalo, định danh VNeID, nhận biết lừa đảo mạng và ứng dụng AI vào đời sống hàng ngày.
+              </p>
+
+              {/* QUICK ACTION BUTTONS */}
+              <div className="flex flex-wrap items-center gap-3 pt-2">
+                <button
+                  onClick={() => setIsAiAssistantOpen(true)}
+                  className="px-5 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-slate-950 font-black text-xs sm:text-sm shadow-lg transform hover:-translate-y-0.5 transition flex items-center gap-2"
+                >
+                  <Sparkles className="w-4 h-4 fill-slate-950" />
+                  <span>Hỏi Trợ Lý AI Cộng Đồng</span>
+                </button>
+
+                <button
+                  onClick={() => setIsNeedHelpOpen(true)}
+                  className="px-5 py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white font-black text-xs sm:text-sm shadow-lg transform hover:-translate-y-0.5 transition flex items-center gap-2"
+                >
+                  <span>🆘 Bác Cần Hỗ Trợ Số Tại Nhà</span>
+                </button>
+              </div>
+
+            </div>
+
+            {/* STATS QUICK OVERVIEW ON BANNER */}
+            <div className="lg:col-span-4 hidden lg:block">
+              <div className="bg-slate-900/80 backdrop-blur-xl rounded-3xl p-5 border border-white/10 shadow-2xl space-y-3">
+                <h3 className="font-extrabold text-white text-sm flex items-center gap-2 border-b border-white/10 pb-2.5">
+                  <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                  <span>Kết Quả Số Thôn 6</span>
+                </h3>
+
+                <div className="grid grid-cols-2 gap-2 text-white">
+                  <div className="bg-white/5 p-3 rounded-xl border border-white/10">
+                    <div className="text-xl font-black text-emerald-400">100%</div>
+                    <div className="text-[10px] text-slate-300 font-medium">Nguồn rõ ràng</div>
+                  </div>
+                  <div className="bg-white/5 p-3 rounded-xl border border-white/10">
+                    <div className="text-xl font-black text-cyan-400">500+</div>
+                    <div className="text-[10px] text-slate-300 font-medium">Bà con tham gia</div>
+                  </div>
+                </div>
+
+                <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-[11px] p-2.5 rounded-xl flex items-center gap-2 font-medium">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span>Đồng bộ CSDL Supabase Realtime</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* 3. BỐ CỤC CHIA 2 CỘT PHÍA DƯỚI BANNER: SIDEBAR TRÁI & CARDS GRID PHẢI */}
       <div className="flex-1 max-w-7xl mx-auto w-full flex">
         
-        {/* SIDEBAR DỌC BÊN TRÁI 6 THẺ MENU */}
+        {/* CỘT BÊN TRÁI: SIDEBAR MENU HÀNH ĐỘNG DỌC (6 THẺ MENU) */}
         <Sidebar
           activeTab={activeTab}
           setActiveTab={setActiveTab}
@@ -148,75 +245,10 @@ export default function App() {
           onCloseMobile={() => setIsOpenMobileSidebar(false)}
         />
 
-        {/* CỘT NỘI DUNG BÊN PHẢI (HERO BANNER & CARDS GRID) */}
+        {/* CỘT BÊN PHẢI: THANH TÌM KIẾM & CÁC THẺ CARDS */}
         <main className="flex-1 p-4 sm:p-6 lg:p-8 space-y-8 overflow-hidden">
           
-          {/* HERO BANNER SECTION */}
-          <section className="relative bg-slate-900 text-white rounded-3xl overflow-hidden shadow-xl border border-slate-800">
-            
-            {/* BANNER BACKGROUND IMAGE */}
-            <div className="absolute inset-0 z-0 opacity-40 mix-blend-luminosity hover:mix-blend-normal transition duration-700">
-              <img 
-                src="/banner_thon6_dilinh.jpg" 
-                alt="Banner Cộng đồng Thôn 6 Xã Di Linh" 
-                className="w-full h-full object-cover object-center scale-105"
-                onError={(e) => {
-                  e.target.style.display = 'none';
-                }}
-              />
-              <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-900/90 to-blue-950/80"></div>
-            </div>
-
-            {/* BANNER CONTENT */}
-            <div className="p-6 sm:p-10 relative z-10 space-y-5">
-              
-              {/* SLOGAN BADGE */}
-              <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-gradient-to-r from-amber-500/20 to-emerald-500/20 border border-amber-400/40 backdrop-blur-md shadow-md">
-                <Sparkles className="w-4 h-4 text-amber-400 animate-pulse" />
-                <span className="text-xs font-black tracking-wider text-amber-300 uppercase">
-                  Học số – Giúp nhau – Lan tỏa
-                </span>
-              </div>
-
-              {/* MAIN TITLE BANNER */}
-              <div>
-                <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-none text-white drop-shadow-md">
-                  CỘNG ĐỒNG THÔN 6 <br />
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-300">
-                    XÃ DI LINH
-                  </span>
-                </h1>
-                <p className="text-amber-400 font-extrabold text-sm sm:text-lg mt-2.5 tracking-wide flex items-center gap-2">
-                  <span>✨ Nền tảng Chuyển đổi số & Học tập Cộng đồng</span>
-                </p>
-              </div>
-
-              <p className="text-slate-300 text-xs sm:text-sm leading-relaxed max-w-xl font-medium">
-                Cầm tay chỉ việc cho bà con: Video quét QR, dùng Zalo, định danh VNeID, nhận biết lừa đảo mạng và ứng dụng AI vào đời sống hàng ngày.
-              </p>
-
-              {/* QUICK ACTION BUTTONS */}
-              <div className="flex flex-wrap items-center gap-3 pt-1">
-                <button
-                  onClick={() => setIsAiAssistantOpen(true)}
-                  className="px-5 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-slate-950 font-black text-xs sm:text-sm shadow-lg transform hover:-translate-y-0.5 transition flex items-center gap-2"
-                >
-                  <Sparkles className="w-4 h-4 fill-slate-950" />
-                  <span>Hỏi Trợ Lý AI Ngay</span>
-                </button>
-
-                <button
-                  onClick={() => setIsNeedHelpOpen(true)}
-                  className="px-5 py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white font-black text-xs sm:text-sm shadow-lg transform hover:-translate-y-0.5 transition flex items-center gap-2"
-                >
-                  <span>🆘 Bác Cần Hỗ Trợ Số Tại Nhà</span>
-                </button>
-              </div>
-
-            </div>
-          </section>
-
-          {/* QUICK SEARCH & TABS FILTER */}
+          {/* SEARCH BAR & QUICK FILTERS */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
             <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
               <button
