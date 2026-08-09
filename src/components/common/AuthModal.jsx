@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
-import { X, Mail, Lock, User, Shield, CheckCircle, AlertCircle } from 'lucide-react';
+import { X, Mail, Lock, User, CheckCircle, AlertCircle, Info } from 'lucide-react';
 import { supabase } from '../../services/supabaseClient';
-import { ROLE_DETAILS } from './RoleBadge';
 
 export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
-  const [selectedRole, setSelectedRole] = useState('citizen');
+  const [selectedRole, setSelectedRole] = useState('admin');
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
@@ -36,11 +35,17 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
         });
 
         if (error) throw error;
-        setSuccessMsg('Đăng ký thành công! Đã kết nối cơ sở dữ liệu Supabase.');
-        setTimeout(() => {
-          onAuthSuccess(data.user, selectedRole);
-          onClose();
-        }, 1200);
+
+        // Nếu Supabase Auth yêu cầu xác nhận email
+        if (data?.user && !data.session) {
+          setSuccessMsg('Đăng ký thành công! Nếu Supabase của bác có bật Confirm Email, vui lòng kiểm tra hộp thư hoặc dùng câu lệnh SQL kích hoạt tài khoản.');
+        } else {
+          setSuccessMsg('Đăng ký thành công! Đã kết nối cơ sở dữ liệu Supabase.');
+          setTimeout(() => {
+            onAuthSuccess(data.user, selectedRole);
+            onClose();
+          }, 1200);
+        }
 
       } else {
         // Đăng nhập Supabase Auth
@@ -49,7 +54,13 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
           password
         });
 
-        if (error) throw error;
+        if (error) {
+          // Xử lý lỗi Email chưa xác nhận bằng Tiếng Việt thân thiện
+          if (error.message.includes('Email not confirmed')) {
+            throw new Error('Email chưa được kích hoạt trên Supabase. Thầy/Cô vui lòng chạy câu lệnh SQL bên dưới trên Supabase SQL Editor để kích hoạt tài khoản Quản trị viên ngay nhé!');
+          }
+          throw error;
+        }
 
         // Lấy profile thực tế từ CSDL Supabase
         const { data: profile } = await supabase
@@ -59,7 +70,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
           .single();
 
         const userRole = profile ? profile.role : selectedRole;
-        setSuccessMsg('Đăng nhập thành công!');
+        setSuccessMsg('Đăng nhập thành công với quyền Quản trị!');
         setTimeout(() => {
           onAuthSuccess(data.user, userRole);
           onClose();
@@ -98,11 +109,14 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
 
         {/* NOTIFICATION MESSAGES */}
         {errorMsg && (
-          <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-semibold flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 shrink-0" />
-            <span>{errorMsg}</span>
+          <div className="mb-4 p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-semibold space-y-1">
+            <div className="flex items-start gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+              <span>{errorMsg}</span>
+            </div>
           </div>
         )}
+
         {successMsg && (
           <div className="mb-4 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold flex items-center gap-2">
             <CheckCircle className="w-4 h-4 shrink-0" />
@@ -135,10 +149,10 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
               <input
                 type="email"
                 required
-                placeholder="nguoidan@thon6.vn"
+                placeholder="tantung08@gmail.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
               />
             </div>
           </div>
@@ -153,7 +167,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
               />
             </div>
           </div>
@@ -166,12 +180,12 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
             <select
               value={selectedRole}
               onChange={(e) => setSelectedRole(e.target.value)}
-              className="w-full py-2.5 px-3 rounded-xl border border-slate-300 text-sm font-semibold bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full py-2.5 px-3 rounded-xl border border-slate-300 text-sm font-bold bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <option value="citizen">👤 1. Người dân Thôn 6</option>
-              <option value="supporter">🤝 2. Người hỗ trợ số (Thanh niên/Tình nguyện viên)</option>
-              <option value="tech_team">👥 3. Cán bộ Tổ công nghệ số cộng đồng</option>
               <option value="admin">⚙️ 4. Quản trị viên (Cán bộ Xã Di Linh)</option>
+              <option value="tech_team">👥 3. Cán bộ Tổ công nghệ số cộng đồng</option>
+              <option value="supporter">🤝 2. Người hỗ trợ số (Thanh niên/Tình nguyện viên)</option>
+              <option value="citizen">👤 1. Người dân Thôn 6</option>
             </select>
           </div>
 
