@@ -1,7 +1,6 @@
 import React from 'react';
 import { 
-  BookOpen, Video, Sparkles, Image as ImageIcon, FileText, Volume2, 
-  Users, Lightbulb, ShieldCheck, Plus, Bot, User, CheckCircle2, X, PhoneCall 
+  Bot, HeartHandshake, Award, Sparkles, PhoneCall, X, Plus, ShieldCheck, User 
 } from 'lucide-react';
 import RoleBadge from './RoleBadge';
 
@@ -10,29 +9,86 @@ export default function Sidebar({
   setActiveTab, 
   role, 
   onRoleChange,
-  onOpenUploadResource,
-  onOpenUploadActivity,
-  onOpenUploadModel,
-  onOpenUploadOfficial,
   onOpenAiAssistant,
+  onOpenNeedHelp,
+  onOpenUploadActivity,
+  onOpenMySkills,
   isOpenMobile,
   onCloseMobile
 }) {
-  const menuItems = [
-    { id: 'all', label: 'Tất cả bài viết', icon: BookOpen, count: null, color: 'text-blue-600' },
-    { id: 'video', label: 'Video Cầm tay chỉ việc', icon: Video, count: null, color: 'text-red-500' },
-    { id: 'infographic', label: 'Infographic Trực quan', icon: Sparkles, count: null, color: 'text-amber-500' },
-    { id: 'image', label: 'Ảnh minh họa từng bước', icon: ImageIcon, count: null, color: 'text-emerald-500' },
-    { id: 'document', label: 'Tài liệu & Cẩm nang', icon: FileText, count: null, color: 'text-indigo-500' },
-    { id: 'audio', label: 'Podcast 2 phút đọc chữ', icon: Volume2, count: null, color: 'text-purple-500' },
-    { id: 'activities', label: 'Hoạt động cộng đồng', icon: Users, count: null, color: 'text-emerald-600' },
-    { id: 'models', label: 'Mô hình học tập hay (AI)', icon: Lightbulb, count: null, color: 'text-amber-600' },
-    { id: 'official', label: 'Nguồn AI Reference chính thống', icon: ShieldCheck, count: null, color: 'text-purple-700' }
+  // 6 THẺ MENU THEO ĐÚNG YÊU CẦU CỦA THẦY/CÔ
+  const actionCards = [
+    {
+      id: 'learn',
+      title: 'TÔI MUỐN HỌC',
+      icon: '🎬',
+      badge: 'Video & Infographic',
+      color: 'from-blue-600 to-indigo-600 text-white shadow-blue-500/20',
+      action: () => {
+        setActiveTab('all');
+        if (onCloseMobile) onCloseMobile();
+      }
+    },
+    {
+      id: 'ai',
+      title: 'TÔI MUỐN HỎI AI',
+      icon: '🤖',
+      badge: 'Giải đáp chính thống',
+      color: 'from-indigo-600 to-purple-600 text-white shadow-purple-500/20',
+      action: () => {
+        onOpenAiAssistant();
+        if (onCloseMobile) onCloseMobile();
+      }
+    },
+    {
+      id: 'help',
+      title: 'TÔI CẦN HỖ TRỢ',
+      icon: '🆘',
+      badge: 'Cầm tay chỉ việc',
+      color: 'from-red-600 to-rose-600 text-white shadow-red-500/20',
+      action: () => {
+        onOpenNeedHelp();
+        if (onCloseMobile) onCloseMobile();
+      }
+    },
+    {
+      id: 'volunteer',
+      title: 'TÔI CÓ THỂ GIÚP',
+      icon: '🤝',
+      badge: 'Tình nguyện viên',
+      color: 'from-emerald-600 to-teal-600 text-white shadow-emerald-500/20',
+      action: () => {
+        onOpenUploadActivity();
+        if (onCloseMobile) onCloseMobile();
+      }
+    },
+    {
+      id: 'skills',
+      title: 'KỸ NĂNG CỦA TÔI',
+      icon: '🪪',
+      badge: 'Hộ chiếu kỹ năng',
+      color: 'from-amber-600 to-orange-600 text-white shadow-amber-500/20',
+      action: () => {
+        onOpenMySkills();
+        if (onCloseMobile) onCloseMobile();
+      }
+    },
+    {
+      id: 'spread',
+      title: 'HOẠT ĐỘNG LAN TỎA',
+      icon: '🌱',
+      badge: 'Kết quả cộng đồng',
+      color: 'from-teal-600 to-emerald-700 text-white shadow-teal-500/20',
+      action: () => {
+        setActiveTab('activities');
+        if (onCloseMobile) onCloseMobile();
+      }
+    }
   ];
 
   return (
     <>
-      {/* MOBILE BACKDROP OVERLAY */}
+      {/* MOBILE OVERLAY */}
       {isOpenMobile && (
         <div 
           onClick={onCloseMobile}
@@ -40,7 +96,7 @@ export default function Sidebar({
         ></div>
       )}
 
-      {/* SIDEBAR PANEL DỌC BÊN TRÁI */}
+      {/* SIDEBAR DỌC BÊN TRÁI HÌNH THỨC CÁC THẺ CARD NỔI BẬT */}
       <aside className={`
         fixed lg:sticky top-0 lg:top-[65px] left-0 z-50 lg:z-30 
         w-72 sm:w-80 h-full lg:h-[calc(100vh-65px)] 
@@ -50,15 +106,15 @@ export default function Sidebar({
         ${isOpenMobile ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
         
-        <div className="space-y-5 overflow-y-auto pr-1">
+        <div className="space-y-4 overflow-y-auto pr-1">
           
-          {/* HEADER ON MOBILE SIDEBAR */}
+          {/* HEADER DI ĐỘNG */}
           <div className="flex items-center justify-between lg:hidden border-b border-slate-100 pb-3">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-xl bg-blue-600 text-white font-extrabold flex items-center justify-center text-sm">
                 T6
               </div>
-              <span className="font-extrabold text-slate-900 text-sm">Danh Mục Chuyển Đổi Số</span>
+              <span className="font-extrabold text-slate-900 text-sm">Menu Thao Tác</span>
             </div>
             <button
               onClick={onCloseMobile}
@@ -68,58 +124,45 @@ export default function Sidebar({
             </button>
           </div>
 
-          {/* SỐ DI LỆNH BANNER BOX */}
-          <div className="bg-gradient-to-br from-blue-900 to-indigo-950 text-white p-4 rounded-2xl shadow-sm relative overflow-hidden">
-            <div className="relative z-10">
-              <span className="bg-emerald-500 text-slate-950 font-black text-[10px] uppercase px-2 py-0.5 rounded-md inline-block mb-1">
-                Thôn 6 Xã Di Linh
-              </span>
-              <h3 className="font-extrabold text-sm leading-snug text-white">
-                Học số – Giúp nhau – Lan tỏa
-              </h3>
-              <p className="text-[11px] text-slate-300 mt-1 font-medium">
-                Tổ CNS hỗ trợ cầm tay chỉ việc người dân 24/7.
-              </p>
-            </div>
+          <div className="text-[11px] font-black uppercase text-slate-400 tracking-wider px-1">
+            Menu Hành Động Số Thôn 6
           </div>
 
-          {/* DANH MỤC MENU DỌC (VERTICAL NAVIGATION MENU) */}
-          <div>
-            <div className="text-[11px] font-black uppercase text-slate-400 tracking-wider mb-2.5 px-2">
-              Danh Mục Nội Dung
-            </div>
-            <nav className="space-y-1">
-              {menuItems.map((item) => {
-                const Icon = item.icon;
-                const isActive = activeTab === item.id;
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => {
-                      setActiveTab(item.id);
-                      if (onCloseMobile) onCloseMobile();
-                    }}
-                    className={`
-                      w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl 
-                      text-xs sm:text-sm font-extrabold transition-all duration-200
-                      ${isActive 
-                        ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20 translate-x-1' 
-                        : 'text-slate-700 hover:bg-slate-100 hover:text-blue-600'}
-                    `}
-                  >
-                    <div className="flex items-center gap-3 truncate">
-                      <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : item.color}`} />
-                      <span className="truncate">{item.label}</span>
-                    </div>
-                  </button>
-                );
-              })}
-            </nav>
+          {/* DANH SÁCH 6 THẺ MENU NỔI BẬT */}
+          <div className="space-y-3">
+            {actionCards.map((card) => (
+              <button
+                key={card.id}
+                onClick={card.action}
+                className={`
+                  w-full p-3.5 rounded-2xl bg-gradient-to-r ${card.color} 
+                  shadow-md hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 
+                  flex items-center justify-between text-left group border border-white/20
+                `}
+              >
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl group-hover:scale-110 transition-transform duration-200">
+                    {card.icon}
+                  </span>
+                  <div>
+                    <h3 className="font-black text-sm tracking-tight text-white leading-snug">
+                      {card.title}
+                    </h3>
+                    <span className="text-[10px] font-bold text-white/80 uppercase">
+                      {card.badge}
+                    </span>
+                  </div>
+                </div>
+                <span className="text-white/70 group-hover:text-white group-hover:translate-x-1 transition font-bold text-lg">
+                  ›
+                </span>
+              </button>
+            ))}
           </div>
 
-          {/* QUẢN LÝ VAI TRÒ DỌC (RBAC SELECTION) */}
+          {/* PHÂN QUYỀN VAI TRÒ */}
           <div className="pt-3 border-t border-slate-100">
-            <div className="text-[11px] font-black uppercase text-slate-400 tracking-wider mb-2 px-2">
+            <div className="text-[11px] font-black uppercase text-slate-400 tracking-wider mb-2 px-1">
               Phân Quyền Vai Trò
             </div>
             <select
@@ -137,67 +180,16 @@ export default function Sidebar({
             </div>
           </div>
 
-          {/* NÚT THAO TÁC NHANH VÀO CSDL */}
-          <div className="pt-3 border-t border-slate-100 space-y-2">
-            <div className="text-[11px] font-black uppercase text-slate-400 tracking-wider mb-2 px-2">
-              Thao Tác Nhanh
-            </div>
-
-            <button
-              onClick={onOpenAiAssistant}
-              className="w-full py-2.5 px-3.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md hover:opacity-95 transition"
-            >
-              <Bot className="w-4 h-4 text-emerald-300 animate-bounce" />
-              <span>Hỏi Trợ Lý AI Cộng Đồng</span>
-            </button>
-
-            {(role === 'tech_team' || role === 'admin' || role === 'supporter') && (
-              <button
-                onClick={onOpenUploadResource}
-                className="w-full py-2.5 px-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center justify-center gap-2 transition shadow-sm"
-              >
-                <Plus className="w-4 h-4 text-blue-400" />
-                <span>Đăng Tài Nguyên Mới</span>
-              </button>
-            )}
-
-            <button
-              onClick={onOpenUploadActivity}
-              className="w-full py-2.5 px-3.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 font-bold text-xs flex items-center justify-center gap-2 transition"
-            >
-              <Plus className="w-4 h-4 text-emerald-600" />
-              <span>Đăng Báo Cáo Hoạt Động</span>
-            </button>
-
-            <button
-              onClick={onOpenUploadModel}
-              className="w-full py-2.5 px-3.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 font-bold text-xs flex items-center justify-center gap-2 transition"
-            >
-              <Lightbulb className="w-4 h-4 text-amber-600" />
-              <span>Gửi Cách Làm Hay (AI 4 Bước)</span>
-            </button>
-
-            {(role === 'admin' || role === 'tech_team') && (
-              <button
-                onClick={onOpenUploadOfficial}
-                className="w-full py-2.5 px-3.5 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-900 border border-purple-200 font-bold text-xs flex items-center justify-center gap-2 transition"
-              >
-                <ShieldCheck className="w-4 h-4 text-purple-600" />
-                <span>Tải Nguồn Chính Thống Cho AI</span>
-              </button>
-            )}
-          </div>
-
         </div>
 
-        {/* FOOTER HELPLINE IN SIDEBAR */}
+        {/* HOTLINE CẦM TAY CHỈ VIỆC */}
         <div className="pt-3 border-t border-slate-100 text-center">
           <a 
             href="tel:0912345678"
-            className="inline-flex items-center gap-1.5 text-[11px] font-bold text-emerald-700 hover:underline bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-200 w-full justify-center"
+            className="inline-flex items-center gap-1.5 text-xs font-black text-emerald-800 bg-emerald-100 hover:bg-emerald-200 px-3 py-2 rounded-xl border border-emerald-300 w-full justify-center shadow-xs transition"
           >
-            <PhoneCall className="w-3.5 h-3.5 text-emerald-600 animate-pulse" />
-            <span>Hotline Hỗ Trợ: 0912.345.678</span>
+            <PhoneCall className="w-4 h-4 text-emerald-700 animate-pulse" />
+            <span>Hotline Cầm Tay Chỉ Việc: 0912.345.678</span>
           </a>
         </div>
 

@@ -30,6 +30,8 @@ import LearningModelUploadModal from './components/features/LearningModelUploadM
 import OfficialDocCard from './components/features/OfficialDocCard';
 import OfficialDocUploadModal from './components/features/OfficialDocUploadModal';
 import UploadResourceModal from './components/features/UploadResourceModal';
+import NeedHelpModal from './components/features/NeedHelpModal';
+import MySkillsModal from './components/features/MySkillsModal';
 
 export default function App() {
   // STATE MANAGEMENT
@@ -55,6 +57,8 @@ export default function App() {
   const [isUploadModelOpen, setIsUploadModelOpen] = useState(false);
   const [isUploadOfficialOpen, setIsUploadOfficialOpen] = useState(false);
   const [isUploadResourceOpen, setIsUploadResourceOpen] = useState(false);
+  const [isNeedHelpOpen, setIsNeedHelpOpen] = useState(false);
+  const [isMySkillsOpen, setIsMySkillsOpen] = useState(false);
 
   useEffect(() => {
     fetchInitialData();
@@ -101,7 +105,7 @@ export default function App() {
     setRole(userRole || 'citizen');
   };
 
-  // FILTERED RESOURCES BASED ON SIDEBAR SELECTION & SEARCH
+  // FILTERED RESOURCES
   const filteredResources = resources.filter(res => {
     const matchesTab = activeTab === 'all' || activeTab === 'resources' || res.type === activeTab;
     const matchesSearch = !searchQuery || 
@@ -127,20 +131,19 @@ export default function App() {
         onToggleSidebar={() => setIsOpenMobileSidebar(!isOpenMobileSidebar)}
       />
 
-      {/* MAIN CONTAINER WITH SIDEBAR & CARDS CONTENT */}
+      {/* MAIN CONTAINER WITH 6 ACTION CARDS SIDEBAR */}
       <div className="flex-1 max-w-7xl mx-auto w-full flex">
         
-        {/* SIDEBAR DỌC BÊN TRÁI */}
+        {/* SIDEBAR DỌC BÊN TRÁI 6 THẺ MENU */}
         <Sidebar
           activeTab={activeTab}
           setActiveTab={setActiveTab}
           role={role}
           onRoleChange={(newRole) => setRole(newRole)}
-          onOpenUploadResource={() => setIsUploadResourceOpen(true)}
-          onOpenUploadActivity={() => setIsUploadActivityOpen(true)}
-          onOpenUploadModel={() => setIsUploadModelOpen(true)}
-          onOpenUploadOfficial={() => setIsUploadOfficialOpen(true)}
           onOpenAiAssistant={() => setIsAiAssistantOpen(true)}
+          onOpenNeedHelp={() => setIsNeedHelpOpen(true)}
+          onOpenUploadActivity={() => setIsUploadActivityOpen(true)}
+          onOpenMySkills={() => setIsMySkillsOpen(true)}
           isOpenMobile={isOpenMobileSidebar}
           onCloseMobile={() => setIsOpenMobileSidebar(false)}
         />
@@ -148,7 +151,7 @@ export default function App() {
         {/* CỘT NỘI DUNG BÊN PHẢI (HERO BANNER & CARDS GRID) */}
         <main className="flex-1 p-4 sm:p-6 lg:p-8 space-y-8 overflow-hidden">
           
-          {/* HERO BANNER SECTION (ĐÃ THIẾT KẾ HOÀN HẢO TẠI ĐÂY) */}
+          {/* HERO BANNER SECTION */}
           <section className="relative bg-slate-900 text-white rounded-3xl overflow-hidden shadow-xl border border-slate-800">
             
             {/* BANNER BACKGROUND IMAGE */}
@@ -192,36 +195,62 @@ export default function App() {
                 Cầm tay chỉ việc cho bà con: Video quét QR, dùng Zalo, định danh VNeID, nhận biết lừa đảo mạng và ứng dụng AI vào đời sống hàng ngày.
               </p>
 
-              {/* ACTION BUTTONS */}
+              {/* QUICK ACTION BUTTONS */}
               <div className="flex flex-wrap items-center gap-3 pt-1">
                 <button
                   onClick={() => setIsAiAssistantOpen(true)}
                   className="px-5 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-slate-950 font-black text-xs sm:text-sm shadow-lg transform hover:-translate-y-0.5 transition flex items-center gap-2"
                 >
                   <Sparkles className="w-4 h-4 fill-slate-950" />
-                  <span>Hỏi Trợ Lý AI Cộng Đồng</span>
+                  <span>Hỏi Trợ Lý AI Ngay</span>
                 </button>
 
                 <button
-                  onClick={() => setIsUploadModelOpen(true)}
-                  className="px-4 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs sm:text-sm border border-white/20 backdrop-blur-md transition flex items-center gap-2"
+                  onClick={() => setIsNeedHelpOpen(true)}
+                  className="px-5 py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white font-black text-xs sm:text-sm shadow-lg transform hover:-translate-y-0.5 transition flex items-center gap-2"
                 >
-                  <Lightbulb className="w-4 h-4 text-amber-400" />
-                  <span>Gửi Cách Làm Hay</span>
+                  <span>🆘 Bác Cần Hỗ Trợ Số Tại Nhà</span>
                 </button>
               </div>
 
             </div>
           </section>
 
-          {/* SEARCH BAR & CARDS FILTER STATS */}
+          {/* QUICK SEARCH & TABS FILTER */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
-            <div className="flex items-center gap-2 text-xs sm:text-sm font-black text-slate-800">
-              <span className="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
-              <span>Đang hiển thị danh mục:</span>
-              <span className="text-blue-600 font-extrabold uppercase">
-                {activeTab === 'all' ? 'Tất cả các thẻ' : activeTab}
-              </span>
+            <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
+              <button
+                onClick={() => setActiveTab('all')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-black transition ${
+                  activeTab === 'all' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-700'
+                }`}
+              >
+                Tất cả bài học
+              </button>
+              <button
+                onClick={() => setActiveTab('video')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-black transition ${
+                  activeTab === 'video' ? 'bg-red-600 text-white' : 'bg-slate-100 text-slate-700'
+                }`}
+              >
+                🎥 Video
+              </button>
+              <button
+                onClick={() => setActiveTab('infographic')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-black transition ${
+                  activeTab === 'infographic' ? 'bg-amber-600 text-white' : 'bg-slate-100 text-slate-700'
+                }`}
+              >
+                ✨ Infographic
+              </button>
+              <button
+                onClick={() => setActiveTab('audio')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-black transition ${
+                  activeTab === 'audio' ? 'bg-purple-600 text-white' : 'bg-slate-100 text-slate-700'
+                }`}
+              >
+                🎙️ Podcast 2 phút
+              </button>
             </div>
 
             {/* SEARCH INPUT */}
@@ -239,14 +268,14 @@ export default function App() {
 
           {/* CARDS DISPLAY AREA BELOW BANNER */}
 
-          {/* 1. LEARNING RESOURCES CARDS (VIDEO, INFOGRAPHIC, AUDIO, DOCUMENT, IMAGE) */}
-          {(activeTab === 'all' || activeTab === 'resources' || activeTab === 'video' || activeTab === 'infographic' || activeTab === 'audio' || activeTab === 'document' || activeTab === 'image') && (
+          {/* 1. LEARNING RESOURCES CARDS (🎬 TÔI MUỐN HỌC) */}
+          {(activeTab === 'all' || activeTab === 'video' || activeTab === 'infographic' || activeTab === 'audio' || activeTab === 'document' || activeTab === 'image') && (
             <section className="space-y-4">
               <div className="flex items-center justify-between">
                 <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-                  <span>📚 Thẻ Kho Cẩm Nang & Video Cầm Tay Chỉ Việc</span>
+                  <span>🎬 Kho Bài Học Cầm Tay Chỉ Việc (TÔI MUỐN HỌC)</span>
                   <span className="text-xs bg-blue-100 text-blue-800 font-extrabold px-2.5 py-0.5 rounded-full">
-                    {filteredResources.length} thẻ
+                    {filteredResources.length} bài học
                   </span>
                 </h2>
 
@@ -256,7 +285,7 @@ export default function App() {
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition shadow-xs"
                   >
                     <Plus className="w-3.5 h-3.5" />
-                    <span>Thêm Thẻ Mới</span>
+                    <span>Đăng Bài Học Mới</span>
                   </button>
                 )}
               </div>
@@ -280,21 +309,21 @@ export default function App() {
               ) : (
                 <div className="bg-white p-10 rounded-3xl border border-slate-200 text-center">
                   <HelpCircle className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-                  <h3 className="font-bold text-slate-700 text-sm">Chưa có thẻ tài nguyên phù hợp</h3>
-                  <p className="text-xs text-slate-500 mt-1">Bà con thử chọn danh mục khác từ Sidebar bên trái nhé.</p>
+                  <h3 className="font-bold text-slate-700 text-sm">Chưa có bài học phù hợp</h3>
+                  <p className="text-xs text-slate-500 mt-1">Bà con thử bấm các Thẻ Menu ở Sidebar bên trái nhé.</p>
                 </div>
               )}
             </section>
           )}
 
-          {/* 2. COMMUNITY ACTIVITIES CARDS */}
+          {/* 2. COMMUNITY ACTIVITIES & SPREAD (🌱 HOẠT ĐỘNG LAN TỎA) */}
           {(activeTab === 'all' || activeTab === 'activities') && (
             <section className="space-y-4 pt-4 border-t border-slate-200">
               <div className="flex items-center justify-between">
                 <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-                  <span>🤝 Thẻ Nhật Ký Hoạt Động Cộng Đồng</span>
+                  <span>🌱 Nhật Ký HOẠT ĐỘNG LAN TỎA Cộng Đồng</span>
                   <span className="text-xs bg-emerald-100 text-emerald-800 font-extrabold px-2.5 py-0.5 rounded-full">
-                    {activities.length} bài đăng
+                    {activities.length} kết quả
                   </span>
                 </h2>
 
@@ -303,7 +332,7 @@ export default function App() {
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition shadow-xs"
                 >
                   <Plus className="w-3.5 h-3.5" />
-                  <span>Đăng Bài Mới</span>
+                  <span>Đăng Báo Cáo Lan Tỏa</span>
                 </button>
               </div>
 
@@ -315,12 +344,12 @@ export default function App() {
             </section>
           )}
 
-          {/* 3. LEARNING MODELS CARDS */}
+          {/* 3. LEARNING MODELS */}
           {(activeTab === 'all' || activeTab === 'models') && (
             <section className="space-y-4 pt-4 border-t border-slate-200">
               <div className="flex items-center justify-between">
                 <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-                  <span>💡 Thẻ Mô Hình Học Tập Từ Người Dân (AI Biên Tập)</span>
+                  <span>💡 Mô Hình Học Tập Từ Người Dân (AI Biên Tập 4 Bước)</span>
                   <span className="text-xs bg-amber-100 text-amber-900 font-extrabold px-2.5 py-0.5 rounded-full">
                     {models.length} mô hình
                   </span>
@@ -331,7 +360,7 @@ export default function App() {
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs transition shadow-xs"
                 >
                   <Plus className="w-3.5 h-3.5" />
-                  <span>Gửi Mô Hình Hay</span>
+                  <span>Gửi Cách Làm Hay</span>
                 </button>
               </div>
 
@@ -343,12 +372,12 @@ export default function App() {
             </section>
           )}
 
-          {/* 4. OFFICIAL DOCUMENTS CARDS */}
+          {/* 4. OFFICIAL DOCUMENTS */}
           {(activeTab === 'all' || activeTab === 'official') && (
             <section className="space-y-4 pt-4 border-t border-slate-200">
               <div className="flex items-center justify-between">
                 <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-                  <span>🏛️ Thẻ Nguồn Văn Bản Chính Thống Cho AI</span>
+                  <span>🏛️ Nguồn Văn Bản Chính Thống Cho AI Reference</span>
                   <span className="text-xs bg-purple-100 text-purple-800 font-extrabold px-2.5 py-0.5 rounded-full">
                     {officialDocs.length} văn bản
                   </span>
@@ -391,6 +420,17 @@ export default function App() {
         isOpen={isAiAssistantOpen}
         onClose={() => setIsAiAssistantOpen(false)}
         officialDocs={officialDocs}
+      />
+
+      <NeedHelpModal
+        isOpen={isNeedHelpOpen}
+        onClose={() => setIsNeedHelpOpen(false)}
+      />
+
+      <MySkillsModal
+        isOpen={isMySkillsOpen}
+        onClose={() => setIsMySkillsOpen(false)}
+        user={user}
       />
 
       <ResourceDetailModal
