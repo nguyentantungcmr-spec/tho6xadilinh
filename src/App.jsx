@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   Video, Image as ImageIcon, FileText, Volume2, Sparkles, Plus, 
   Search, Users, Lightbulb, ShieldCheck, HeartHandshake, BookOpen, 
-  HelpCircle, VolumeX, CheckCircle2, ArrowRight, PhoneCall 
+  HelpCircle, CheckCircle2, PhoneCall 
 } from 'lucide-react';
 
 // SERVICES SUPABASE
@@ -15,7 +15,7 @@ import { getOfficialDocuments } from './services/officialDocService';
 // COMMON COMPONENTS
 import Header from './components/common/Header';
 import Footer from './components/common/Footer';
-import RoleBadge, { ROLE_DETAILS } from './components/common/RoleBadge';
+import RoleBadge from './components/common/RoleBadge';
 import AuthModal from './components/common/AuthModal';
 import AiAssistantModal from './components/common/AiAssistantModal';
 
@@ -33,7 +33,7 @@ import UploadResourceModal from './components/features/UploadResourceModal';
 export default function App() {
   // STATE MANAGEMENT
   const [user, setUser] = useState(null);
-  const [role, setRole] = useState('citizen'); // default 'citizen'
+  const [role, setRole] = useState('citizen');
   const [seniorMode, setSeniorMode] = useState(false);
   const [activeTab, setActiveTab] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -54,7 +54,6 @@ export default function App() {
   const [isUploadOfficialOpen, setIsUploadOfficialOpen] = useState(false);
   const [isUploadResourceOpen, setIsUploadResourceOpen] = useState(false);
 
-  // CHECK AUTH SESSION & FETCH SUPABASE DATA
   useEffect(() => {
     fetchInitialData();
     checkUserSession();
@@ -125,44 +124,67 @@ export default function App() {
         onOpenAiAssistant={() => setIsAiAssistantOpen(true)}
       />
 
-      {/* HERO SECTION */}
-      <section className="bg-gradient-to-br from-blue-900 via-indigo-900 to-slate-900 text-white py-12 sm:py-16 relative overflow-hidden shadow-md">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-500/20 via-transparent to-transparent"></div>
+      {/* HERO BANNER SECTION */}
+      <section className="relative bg-slate-900 text-white overflow-hidden shadow-xl">
         
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        {/* BANNER BACKGROUND IMAGE */}
+        <div className="absolute inset-0 z-0 opacity-40 mix-blend-luminosity hover:mix-blend-normal transition duration-700">
+          <img 
+            src="/banner_thon6_dilinh.jpg" 
+            alt="Banner Cộng đồng Thôn 6 Xã Di Linh" 
+            className="w-full h-full object-cover object-center scale-105"
+            onError={(e) => {
+              e.target.style.display = 'none';
+            }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-900/90 to-blue-950/80"></div>
+        </div>
+
+        {/* BANNER CONTENT */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-20 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             
-            <div className="lg:col-span-7 space-y-5">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-emerald-300 text-xs font-bold border border-white/20 backdrop-blur-xs">
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>Nền tảng Số Cộng Đồng Thôn 6 Xã Di Linh</span>
+            <div className="lg:col-span-8 space-y-6">
+              
+              {/* SLOGAN BADGE */}
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-amber-500/20 to-emerald-500/20 border border-amber-400/40 backdrop-blur-md shadow-md">
+                <Sparkles className="w-4 h-4 text-amber-400 animate-pulse" />
+                <span className="text-xs sm:text-sm font-black tracking-wider text-amber-300 uppercase">
+                  Học số – Giúp nhau – Lan tỏa
+                </span>
               </div>
 
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight">
-                Cầm Tay Chỉ Việc <br className="hidden sm:inline" />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-300">
-                  Chuyển Đổi Số Cho Bà Con
-                </span>
-              </h1>
+              {/* MAIN TITLE BANNER */}
+              <div>
+                <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-none text-white drop-shadow-md">
+                  CỘNG ĐỒNG THÔN 6 <br />
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-300">
+                    XÃ DI LINH
+                  </span>
+                </h1>
+                <p className="text-amber-400 font-extrabold text-lg sm:text-xl mt-3 tracking-wide flex items-center gap-2">
+                  <span>✨ Nền tảng Chuyển đổi số & Học tập Cộng đồng</span>
+                </p>
+              </div>
 
               <p className="text-slate-300 text-sm sm:text-base leading-relaxed max-w-2xl font-medium">
-                Kho tài liệu hướng dẫn trực quan: Video ngắn, Ảnh từng bước, Podcast 2 phút và Infographic phòng chống lừa đảo. Thiết kế đặc biệt dễ sử dụng cho Người cao tuổi.
+                Nơi cầm tay chỉ việc cho bà con: Video quét QR, dùng Zalo, định danh VNeID, nhận biết lừa đảo mạng và ứng dụng AI vào đời sống hàng ngày.
               </p>
 
               {/* ACTION BUTTONS & ROLE DISPLAY */}
               <div className="flex flex-wrap items-center gap-3 pt-2">
                 <button
                   onClick={() => setIsAiAssistantOpen(true)}
-                  className="px-5 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-slate-950 font-black text-sm shadow-lg transform hover:-translate-y-0.5 transition flex items-center gap-2"
+                  className="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-slate-950 font-black text-sm shadow-xl transform hover:-translate-y-0.5 transition flex items-center gap-2"
                 >
-                  <Sparkles className="w-4 h-4 fill-slate-950" />
-                  <span>Hỏi Trợ Lý AI Ngay</span>
+                  <Sparkles className="w-5 h-5 fill-slate-950" />
+                  <span>Hỏi Trợ Lý AI Cộng Đồng</span>
                 </button>
 
                 {role === 'citizen' && (
                   <button
                     onClick={() => setIsUploadModelOpen(true)}
-                    className="px-5 py-3 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold text-sm border border-white/20 backdrop-blur-xs transition flex items-center gap-2"
+                    className="px-5 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold text-sm border border-white/20 backdrop-blur-md transition flex items-center gap-2"
                   >
                     <Lightbulb className="w-4 h-4 text-amber-400" />
                     <span>Gửi Ý Tưởng / Mô Hình Hay</span>
@@ -172,7 +194,7 @@ export default function App() {
                 {(role === 'tech_team' || role === 'admin' || role === 'supporter') && (
                   <button
                     onClick={() => setIsUploadResourceOpen(true)}
-                    className="px-5 py-3 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm shadow-md transition flex items-center gap-2"
+                    className="px-5 py-3.5 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm shadow-md transition flex items-center gap-2"
                   >
                     <Plus className="w-4 h-4" />
                     <span>Đăng Tài Nguyên Mới</span>
@@ -181,42 +203,42 @@ export default function App() {
               </div>
 
               {/* CURRENT ROLE NOTIFICATION */}
-              <div className="pt-2 flex items-center gap-2 text-xs text-slate-300">
-                <span>Bạn đang xem giao diện với quyền:</span>
+              <div className="pt-1 flex items-center gap-2 text-xs text-slate-400">
+                <span>Đang truy cập dưới quyền:</span>
                 <RoleBadge role={role} />
               </div>
             </div>
 
             {/* QUICK STATS CARD */}
-            <div className="lg:col-span-5">
-              <div className="bg-white/10 backdrop-blur-md rounded-3xl p-6 border border-white/20 shadow-2xl space-y-4">
+            <div className="lg:col-span-4">
+              <div className="bg-slate-900/80 backdrop-blur-xl rounded-3xl p-6 border border-white/10 shadow-2xl space-y-4">
                 <h3 className="font-extrabold text-white text-base flex items-center gap-2 border-b border-white/10 pb-3">
                   <ShieldCheck className="w-5 h-5 text-emerald-400" />
-                  <span>Kết Quả Phong Trào Thôn 6</span>
+                  <span>Phong Trào Số Thôn 6</span>
                 </h3>
 
                 <div className="grid grid-cols-2 gap-3 text-white">
-                  <div className="bg-white/10 p-3.5 rounded-2xl border border-white/10">
+                  <div className="bg-white/5 p-3.5 rounded-2xl border border-white/10">
                     <div className="text-2xl font-black text-emerald-400">100%</div>
-                    <div className="text-[11px] text-slate-300 font-medium">Tài liệu nguồn rõ ràng</div>
+                    <div className="text-[11px] text-slate-300 font-medium">Nguồn rõ ràng</div>
                   </div>
-                  <div className="bg-white/10 p-3.5 rounded-2xl border border-white/10">
+                  <div className="bg-white/5 p-3.5 rounded-2xl border border-white/10">
                     <div className="text-2xl font-black text-cyan-400">500+</div>
-                    <div className="text-[11px] text-slate-300 font-medium">Bà con được hỗ trợ</div>
+                    <div className="text-[11px] text-slate-300 font-medium">Bà con đã tham gia</div>
                   </div>
-                  <div className="bg-white/10 p-3.5 rounded-2xl border border-white/10">
+                  <div className="bg-white/5 p-3.5 rounded-2xl border border-white/10">
                     <div className="text-2xl font-black text-amber-400">8 Nhóm</div>
-                    <div className="text-[11px] text-slate-300 font-medium">Tài nguyên học tập</div>
+                    <div className="text-[11px] text-slate-300 font-medium">Nội dung học tập</div>
                   </div>
-                  <div className="bg-white/10 p-3.5 rounded-2xl border border-white/10">
+                  <div className="bg-white/5 p-3.5 rounded-2xl border border-white/10">
                     <div className="text-2xl font-black text-purple-400">24/7</div>
                     <div className="text-[11px] text-slate-300 font-medium">Trợ lý AI chính thống</div>
                   </div>
                 </div>
 
-                <div className="bg-emerald-500/20 text-emerald-200 text-xs p-3 rounded-xl flex items-center gap-2 font-medium">
+                <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs p-3 rounded-xl flex items-center gap-2 font-medium">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                  <span>Đồng bộ 100% CSDL PostgreSQL trên Supabase</span>
+                  <span>Đồng bộ CSDL Supabase Realtime</span>
                 </div>
               </div>
             </div>
