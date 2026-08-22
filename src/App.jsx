@@ -22,6 +22,7 @@ import AuthModal from './components/common/AuthModal';
 import AiAssistantModal from './components/common/AiAssistantModal';
 import FloatingActionStickers from './components/common/FloatingActionStickers';
 import LedTickerBar from './components/common/LedTickerBar';
+import MobileBottomNav from './components/common/MobileBottomNav';
 
 // FEATURE COMPONENTS
 import ResourceCard from './components/features/ResourceCard';
@@ -547,14 +548,14 @@ export default function App() {
             </div>
 
             {/* CỘT 3 (SÁT MÉP PHẢI): THẺ MÃ QR QUÉT THAM GIA NHÓM ZALO CỘNG ĐỒNG THÔN 6 */}
-            <div className="md:col-span-5 lg:col-span-3 flex justify-end items-center w-full">
+            <div className="md:col-span-5 lg:col-span-3 flex justify-center sm:justify-end items-center w-full">
               <div 
                 onClick={() => setIsQrModalOpen(true)}
-                className="bg-white/95 hover:bg-white text-slate-900 p-2.5 sm:p-3 rounded-2xl shadow-2xl border-2 border-amber-300/90 ring-2 ring-white/95 flex items-center gap-3 cursor-pointer transform hover:scale-102 transition duration-300 group ml-auto"
+                className="bg-white/95 hover:bg-white text-slate-900 p-2.5 sm:p-3 rounded-2xl shadow-2xl border-2 border-amber-300/90 ring-2 ring-white/95 flex items-center gap-3 cursor-pointer transform hover:scale-102 transition duration-300 group w-full sm:w-auto ml-0 sm:ml-auto"
                 title="Bấm để phóng to mã QR Zalo Thôn 6"
               >
                 {/* ẢNH MÃ QR THÔN 6 */}
-                <div className="relative w-18 h-18 sm:w-20 sm:h-20 bg-white rounded-xl p-1 shadow-inner border border-slate-200 shrink-0 overflow-hidden">
+                <div className="relative w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-xl p-1 shadow-inner border border-slate-200 shrink-0 overflow-hidden">
                   <img 
                     src="/qr_zalo_thon6.png" 
                     alt="Mã QR Zalo Cộng Đồng Thôn 6 Xã Di Linh" 
@@ -614,7 +615,7 @@ export default function App() {
         />
 
         {/* CỘT BÊN PHẢI: THANH TÌM KIẾM & CÁC THẺ CARDS */}
-        <main id="main-content-section" className="flex-1 p-4 sm:p-6 lg:p-8 space-y-8 overflow-hidden scroll-mt-20">
+        <main id="main-content-section" className="flex-1 p-3 sm:p-6 lg:p-8 space-y-6 sm:space-y-8 pb-28 lg:pb-8 overflow-hidden scroll-mt-20">
           
           {/* SEARCH BAR & QUICK FILTERS TOOLBAR ĐƯỢC THIẾT KẾ KHOA HỌC & ĐỒNG BỘ */}
           <div className="bg-white p-4 sm:p-5 rounded-3xl border border-slate-200 shadow-xs space-y-4">
@@ -1219,6 +1220,15 @@ export default function App() {
           </div>
         </div>
       )}
+
+      {/* 4. THANH ĐIỀU HƯỚNG DƯỚI CÙNG DÀNH RIÊNG CHO ĐIỆN THOẠI DI ĐỘNG (MOBILE BOTTOM NAV) */}
+      <MobileBottomNav
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        role={role}
+        onOpenAiAssistant={() => setIsAiAssistantOpen(true)}
+        onToggleSidebar={() => setIsOpenMobileSidebar(!isOpenMobileSidebar)}
+      />
 
     </div>
   );

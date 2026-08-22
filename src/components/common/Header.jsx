@@ -61,8 +61,9 @@ export default function Header({
               }`}
               title="Bật/Tắt chữ to dễ đọc cho Người cao tuổi"
             >
-              <Type className="w-4 h-4" />
-              <span>{seniorMode ? 'Chữ To (Đang bật)' : 'Bật Chữ To'}</span>
+              <Type className="w-4 h-4 shrink-0" />
+              <span>Chữ To</span>
+              {seniorMode && <span className="hidden sm:inline text-[10px] bg-white/20 px-1.5 py-0.2 rounded-full">Bật</span>}
             </button>
 
             {/* AI ASSISTANT BUTTON */}
@@ -130,10 +131,10 @@ export default function Header({
             ) : (
               <button
                 onClick={onOpenAuth}
-                className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs sm:text-sm font-bold transition shadow-sm"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs sm:text-sm font-bold transition shadow-sm cursor-pointer whitespace-nowrap"
               >
-                <LogIn className="w-4 h-4" />
-                <span className="hidden sm:inline">Đăng ký / Đăng nhập</span>
+                <LogIn className="w-4 h-4 shrink-0" />
+                <span>Đăng Nhập</span>
               </button>
             )}
 

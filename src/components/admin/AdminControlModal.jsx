@@ -201,29 +201,29 @@ export default function AdminControlModal({
         </div>
 
         {/* TAB NAVIGATION */}
-        <div className="flex items-center gap-2 px-4 sm:px-6 pt-3 pb-2 bg-slate-100 border-b border-slate-200">
+        <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-6 pt-3 pb-2 bg-slate-100 border-b border-slate-200 overflow-x-auto scrollbar-none">
           <button
             onClick={() => setActiveTab('members')}
-            className={`px-4 py-2 rounded-xl text-xs font-black transition flex items-center gap-2 cursor-pointer ${
+            className={`px-3 sm:px-4 py-2 rounded-xl text-xs font-black transition flex items-center gap-1.5 sm:gap-2 cursor-pointer whitespace-nowrap shrink-0 ${
               activeTab === 'members'
                 ? 'bg-white text-purple-900 shadow-xs border border-slate-200'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
             }`}
           >
-            <UserPlus className="w-4 h-4 text-purple-600" />
-            <span>1. Cấp & Quản Lý Tài Khoản ({profiles.length})</span>
+            <UserPlus className="w-4 h-4 text-purple-600 shrink-0" />
+            <span>1. Cấp Tài Khoản ({profiles.length})</span>
           </button>
 
           <button
             onClick={() => setActiveTab('posts')}
-            className={`px-4 py-2 rounded-xl text-xs font-black transition flex items-center gap-2 cursor-pointer ${
+            className={`px-3 sm:px-4 py-2 rounded-xl text-xs font-black transition flex items-center gap-1.5 sm:gap-2 cursor-pointer whitespace-nowrap shrink-0 ${
               activeTab === 'posts'
                 ? 'bg-white text-red-900 shadow-xs border border-slate-200'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
             }`}
           >
-            <Trash2 className="w-4 h-4 text-red-600" />
-            <span>2. Quản Lý & Xóa Bài Đăng ({activities.length})</span>
+            <Trash2 className="w-4 h-4 text-red-600 shrink-0" />
+            <span>2. Xóa Bài Đăng ({activities.length})</span>
           </button>
         </div>
 
