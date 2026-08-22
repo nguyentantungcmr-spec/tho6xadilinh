@@ -1,4 +1,5 @@
 import { supabase } from './supabaseClient';
+import { OFFICIAL_12_PILLARS_KNOWLEDGE } from './officialDocService';
 
 /**
  * SERVICE TỰ ĐỘNG KHỞI TẠO & ĐỒNG BỘ DỮ LIỆU THỰC TẾ VÀO SUPABASE
@@ -329,36 +330,8 @@ Tuyệt đối ghi nhớ nguyên tắc "4 KHÔNG - 2 PHẢI":
     }
   ],
 
-  // 6. VĂN BẢN CHÍNH THỐNG
-  official_documents: [
-    {
-      doc_number: '06/QĐ-TTg',
-      title: 'Đề án Phát triển ứng dụng dữ liệu về dân cư, định danh và xác thực điện tử phục vụ chuyển đổi số quốc gia (Đề án 06)',
-      issuing_body: 'Thủ tướng Chính phủ',
-      issued_date: '2022-01-06',
-      effect_status: 'Còn hiệu lực',
-      source_url: 'https://chinhphu.vn',
-      content_summary: 'Quy định mục tiêu tích hợp định danh điện tử VNeID thay thế thẻ BHYT giấy, sổ hộ khẩu giấy, giải quyết dịch vụ công trực tuyến và tạo lập công dân số.'
-    },
-    {
-      doc_number: '24/KH-UBND',
-      title: 'Kế hoạch Triển khai Phong trào "Bình dân học vụ số" và Hoạt động Tổ công nghệ số cộng đồng năm 2026',
-      issuing_body: 'UBND Xã Di Linh',
-      issued_date: '2026-01-15',
-      effect_status: 'Còn hiệu lực',
-      source_url: 'https://dilinh.lamdong.gov.vn',
-      content_summary: 'Phổ cập kỹ năng số toàn diện cho người dân Thôn 6: Quét mã QR, thanh toán không tiền mặt, tra cứu thông tin đất đai, nộp hồ sơ trực tuyến và nhận diện lừa đảo trên mạng.'
-    },
-    {
-      doc_number: '18/TB-UBND',
-      title: 'Thông báo Lịch hỗ trợ kích hoạt tài khoản định danh điện tử VNeID Mức 2 lưu động tại Thôn 6',
-      issuing_body: 'UBND Xã Di Linh - Công an Xã',
-      issued_date: '2026-02-10',
-      effect_status: 'Còn hiệu lực',
-      source_url: 'https://dilinh.lamdong.gov.vn',
-      content_summary: 'Tổ chức các điểm hỗ trợ lưu động tại Nhà sinh hoạt cộng đồng Thôn 6 từ 08h00 - 20h00 các ngày trong tuần. Hướng dẫn công dân mang CCCD gắn chip để được kích hoạt miễn phí.'
-    }
-  ]
+  // 6. 12 TRỤ CỘT TRI THỨC CHÍNH THỐNG (BỘ NÃO TRỢ LÝ SỐ THÔN 6)
+  official_documents: OFFICIAL_12_PILLARS_KNOWLEDGE
 };
 
 /**

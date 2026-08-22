@@ -84,13 +84,15 @@ export default function AdminControlModal({
   });
   const [isEditingNews, setIsEditingNews] = useState(false);
 
-  // 5. FORM STATES (VĂN BẢN)
+  // 5. FORM STATES (VĂN BẢN & TRI THỨC AI 12 TRỤ CỘT)
+  const [docCategoryFilter, setDocCategoryFilter] = useState('all');
   const [docForm, setDocForm] = useState({
     id: null,
     doc_number: '',
     title: '',
     issuing_body: 'UBND Xã Di Linh',
     issued_date: new Date().toISOString().split('T')[0],
+    category: 'VNeID & Định danh điện tử',
     effect_status: 'Còn hiệu lực',
     source_url: 'https://dilinh.lamdong.gov.vn',
     content_summary: ''
@@ -1031,14 +1033,82 @@ export default function AdminControlModal({
             </div>
           )}
 
-          {/* TAB 7: VĂN BẢN PHÁP QUY & RAG */}
+          {/* TAB 7: VĂN BẢN & TRI THỨC AI 12 TRỤ CỘT (BỘ NÃO TRỢ LÝ SỐ) */}
           {activeTab === 'docs' && (
             <div className="space-y-6">
-              {/* FORM THÊM / SỬA VĂN BẢN */}
+              {/* BANNER 12 TRỤ CỘT TRI THỨC */}
+              <div className="bg-gradient-to-r from-indigo-900 via-purple-900 to-slate-900 text-white p-5 rounded-3xl shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border border-indigo-500/30">
+                <div className="space-y-1">
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-400 text-slate-950 text-[10px] font-black uppercase">
+                    🧠 BỘ NÃO TRỢ LÝ SỐ THÔN 6 XÃ DI LINH
+                  </div>
+                  <h3 className="text-base sm:text-lg font-black">Kho Tri Thức Chuẩn Hóa 12 Trụ Cột (RAG Grounding)</h3>
+                  <p className="text-xs text-indigo-200 max-w-2xl leading-relaxed">
+                    Bao gồm 12 chủ đề thiết yếu: VNeID • Dịch vụ công • Phòng chống lừa đảo • Chuyển đổi số • Y tế BHYT • Giáo dục • Môi trường • An ninh PCCC • Chính sách người dân • Nông nghiệp Di Linh • Phòng chống thiên tai • Hotline liên hệ địa phương. Trợ lý AI sẽ trích dẫn chuẩn xác số hiệu văn bản và không bao giờ bịa thông tin.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    setLoading(true);
+                    const { seed12PillarsKnowledgeToDatabase } = await import('../../services/officialDocService');
+                    const res = await seed12PillarsKnowledgeToDatabase();
+                    setLoading(false);
+                    if (res.success) {
+                      showMsg('success', 'Đã nạp và đồng bộ đủ 12 Trụ cột Tri thức chuẩn vào CSDL RAG Supabase!');
+                      loadAllAdminData();
+                      if (onRefreshAllData) onRefreshAllData();
+                    } else {
+                      showMsg('error', res.error || 'Lỗi nạp tri thức');
+                    }
+                  }}
+                  className="px-5 py-2.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs rounded-2xl shadow-md transition flex items-center gap-2 cursor-pointer shrink-0"
+                >
+                  <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+                  <span>⚡ Nạp Đủ 12 Trụ Cột Tri Thức</span>
+                </button>
+              </div>
+
+              {/* BỘ LỌC 12 CHỦ ĐỀ TRI THỨC */}
+              <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs space-y-2.5">
+                <div className="text-xs font-bold text-slate-700">Lọc theo chủ đề tri thức:</div>
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  {[
+                    { id: 'all', label: '🌟 Tất Cả (12)' },
+                    { id: 'VNeID & Định danh điện tử', label: '🪪 VNeID' },
+                    { id: 'Dịch vụ công trực tuyến', label: '🏛️ Dịch Vụ Công' },
+                    { id: 'Phòng chống lừa đảo mạng', label: '🚨 Chống Lừa Đảo' },
+                    { id: 'Chuyển đổi số cộng đồng', label: '💻 Chuyển Đổi Số' },
+                    { id: 'Y tế & BHYT số', label: '🏥 Y Tế & BHYT' },
+                    { id: 'Giáo dục & Tuyển sinh số', label: '🎓 Giáo Dục' },
+                    { id: 'Môi trường & Rác thải', label: '🌳 Môi Trường' },
+                    { id: 'An ninh trật tự & PCCC', label: '🛡️ An Ninh & PCCC' },
+                    { id: 'Chính sách người dân & An sinh', label: '📜 An Sinh Xã Hội' },
+                    { id: 'Nông nghiệp & Nông sản Di Linh', label: '☕ Nông Nghiệp' },
+                    { id: 'Phòng chống thiên tai & Bão lũ', label: '⛈️ Thiên Tai' },
+                    { id: 'Thông tin liên hệ địa phương', label: '📞 Đường Dây Nóng' }
+                  ].map(cat => (
+                    <button
+                      key={cat.id}
+                      type="button"
+                      onClick={() => setDocCategoryFilter(cat.id)}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
+                        docCategoryFilter === cat.id
+                          ? 'bg-indigo-700 text-white shadow-sm'
+                          : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                      }`}
+                    >
+                      {cat.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* FORM THÊM / SỬA VĂN BẢN VÀO BỘ NÃO AI */}
               <div className="bg-white p-5 rounded-2xl border-2 border-indigo-200 shadow-xs space-y-4">
                 <h3 className="font-black text-sm text-slate-900 uppercase flex items-center gap-2">
                   <FileText className="w-5 h-5 text-indigo-700" />
-                  <span>{isEditingDoc ? 'Sửa Văn Bản Chính Thống' : 'Thêm Văn Bản Nạp Tri Thức Cho AI'}</span>
+                  <span>{isEditingDoc ? 'Sửa Văn Bản Tri Thức' : 'Thêm Văn Bản Nạp Vào Bộ Não Trợ Lý AI'}</span>
                 </h3>
                 <form onSubmit={handleSaveDoc} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                   <div>
@@ -1052,16 +1122,37 @@ export default function AdminControlModal({
                       className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-medium"
                     />
                   </div>
-                  <div className="sm:col-span-2">
+                  <div>
                     <label className="block text-xs font-bold text-slate-700 mb-1">Cơ quan ban hành *</label>
                     <input
                       type="text"
                       required
-                      placeholder="UBND Xã Di Linh / Thủ tướng Chính phủ"
+                      placeholder="UBND Xã Di Linh / Công an Xã Di Linh"
                       value={docForm.issuing_body}
                       onChange={e => setDocForm({ ...docForm, issuing_body: e.target.value })}
                       className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-medium"
                     />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Chủ đề tri thức (1 trong 12 Trụ Cột) *</label>
+                    <select
+                      value={docForm.category || 'VNeID & Định danh điện tử'}
+                      onChange={e => setDocForm({ ...docForm, category: e.target.value })}
+                      className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-bold bg-slate-50"
+                    >
+                      <option value="VNeID & Định danh điện tử">🪪 1. VNeID & Định danh điện tử</option>
+                      <option value="Dịch vụ công trực tuyến">🏛️ 2. Dịch vụ công trực tuyến</option>
+                      <option value="Phòng chống lừa đảo mạng">🚨 3. Phòng chống lừa đảo mạng</option>
+                      <option value="Chuyển đổi số cộng đồng">💻 4. Chuyển đổi số cộng đồng</option>
+                      <option value="Y tế & BHYT số">🏥 5. Y tế & BHYT số</option>
+                      <option value="Giáo dục & Tuyển sinh số">🎓 6. Giáo dục & Tuyển sinh số</option>
+                      <option value="Môi trường & Rác thải">🌳 7. Môi trường & Rác thải</option>
+                      <option value="An ninh trật tự & PCCC">🛡️ 8. An ninh trật tự & PCCC</option>
+                      <option value="Chính sách người dân & An sinh">📜 9. Chính sách người dân & An sinh</option>
+                      <option value="Nông nghiệp & Nông sản Di Linh">☕ 10. Nông nghiệp & Nông sản Di Linh</option>
+                      <option value="Phòng chống thiên tai & Bão lũ">⛈️ 11. Phòng chống thiên tai & Bão lũ</option>
+                      <option value="Thông tin liên hệ địa phương">📞 12. Thông tin liên hệ địa phương</option>
+                    </select>
                   </div>
                   <div className="sm:col-span-3">
                     <label className="block text-xs font-bold text-slate-700 mb-1">Tên văn bản / Trích yếu *</label>
@@ -1075,66 +1166,104 @@ export default function AdminControlModal({
                     />
                   </div>
                   <div className="sm:col-span-3">
-                    <label className="block text-xs font-bold text-slate-700 mb-1">Nội dung cốt lõi huấn luyện AI RAG *</label>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Nội dung chi tiết huấn luyện AI RAG (Nguyên văn & Hướng dẫn cụ thể) *</label>
                     <textarea
-                      rows={3}
+                      rows={5}
                       required
-                      placeholder="Quy định chi tiết giúp AI giải đáp chính xác cho người dân..."
+                      placeholder="Ghi rõ quy định, các bước thực hiện, địa điểm, hồ sơ cần mang theo để AI trả lời chính xác và không bịa chính sách..."
                       value={docForm.content_summary}
                       onChange={e => setDocForm({ ...docForm, content_summary: e.target.value })}
-                      className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-medium"
+                      className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-medium leading-relaxed"
                     />
                   </div>
-                  <div className="sm:col-span-3">
+                  <div className="sm:col-span-3 flex items-center gap-2">
                     <button
                       type="submit"
                       className="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs shadow-md transition flex items-center gap-2 cursor-pointer"
                     >
                       <Save className="w-4 h-4" />
-                      <span>{isEditingDoc ? 'Cập Nhật Văn Bản' : 'Lưu & Nạp Vào AI RAG'}</span>
+                      <span>{isEditingDoc ? 'Cập Nhật Văn Bản Tri Thức' : 'Lưu & Nạp Vào Bộ Não AI'}</span>
                     </button>
+                    {isEditingDoc && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsEditingDoc(false);
+                          setDocForm({
+                            id: null,
+                            doc_number: '',
+                            title: '',
+                            issuing_body: 'UBND Xã Di Linh',
+                            issued_date: new Date().toISOString().split('T')[0],
+                            category: 'VNeID & Định danh điện tử',
+                            effect_status: 'Còn hiệu lực',
+                            source_url: 'https://dilinh.lamdong.gov.vn',
+                            content_summary: ''
+                          });
+                        }}
+                        className="px-4 py-2.5 rounded-xl bg-slate-200 text-slate-700 font-bold text-xs"
+                      >
+                        Hủy Sửa
+                      </button>
+                    )}
                   </div>
                 </form>
               </div>
 
               {/* DANH SÁCH VĂN BẢN TRONG CSDL */}
               <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-3">
-                <h3 className="font-black text-sm text-slate-900 pb-2 border-b border-slate-100">
-                  Văn Bản Đang Phục Vụ Tra Cứu ({docsList.length})
-                </h3>
+                <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                  <h3 className="font-black text-sm text-slate-900">
+                    Danh Sách Tri Thức Trong CSDL RAG ({docsList.filter(d => docCategoryFilter === 'all' || d.category === docCategoryFilter).length})
+                  </h3>
+                  <span className="text-xs text-slate-500 font-bold">
+                    Phục vụ đối chiếu trực tiếp cho Trợ lý AI
+                  </span>
+                </div>
+
                 <div className="divide-y divide-slate-100">
-                  {docsList.map(doc => (
-                    <div key={doc.id} className="py-3 flex items-center justify-between gap-4">
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-black uppercase bg-indigo-100 text-indigo-900 px-2 py-0.5 rounded">
-                            {doc.doc_number}
-                          </span>
-                          <span className="text-[11px] text-slate-500 font-bold">{doc.issuing_body}</span>
+                  {docsList
+                    .filter(doc => docCategoryFilter === 'all' || doc.category === docCategoryFilter)
+                    .map(doc => (
+                      <div key={doc.id || doc.doc_number} className="py-3 flex items-start justify-between gap-4">
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-[10px] font-black uppercase bg-indigo-100 text-indigo-900 px-2 py-0.5 rounded">
+                              {doc.doc_number}
+                            </span>
+                            {doc.category && (
+                              <span className="text-[10px] font-black bg-amber-100 text-amber-900 px-2 py-0.5 rounded">
+                                {doc.category}
+                              </span>
+                            )}
+                            <span className="text-[11px] text-slate-500 font-bold">{doc.issuing_body}</span>
+                          </div>
+                          <h4 className="font-bold text-xs text-slate-900">{doc.title}</h4>
+                          <p className="text-[11px] text-slate-600 line-clamp-2 leading-relaxed whitespace-pre-line font-medium">
+                            {doc.content_summary}
+                          </p>
                         </div>
-                        <h4 className="font-bold text-xs text-slate-900 mt-1">{doc.title}</h4>
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <button
+                            onClick={() => {
+                              setDocForm(doc);
+                              setIsEditingDoc(true);
+                            }}
+                            className="p-1.5 rounded-lg bg-indigo-50 text-indigo-700 hover:bg-indigo-100 font-bold text-xs"
+                            title="Sửa văn bản"
+                          >
+                            <Edit3 className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteDoc(doc.id, doc.title)}
+                            className="p-1.5 rounded-lg bg-red-50 text-red-700 hover:bg-red-100 font-bold text-xs"
+                            title="Xóa văn bản"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-1.5 shrink-0">
-                        <button
-                          onClick={() => {
-                            setDocForm(doc);
-                            setIsEditingDoc(true);
-                          }}
-                          className="p-1.5 rounded-lg bg-indigo-50 text-indigo-700 hover:bg-indigo-100 font-bold text-xs"
-                          title="Sửa văn bản"
-                        >
-                          <Edit3 className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteDoc(doc.id, doc.title)}
-                          className="p-1.5 rounded-lg bg-red-50 text-red-700 hover:bg-red-100 font-bold text-xs"
-                          title="Xóa văn bản"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
+                    ))}
                 </div>
               </div>
             </div>
