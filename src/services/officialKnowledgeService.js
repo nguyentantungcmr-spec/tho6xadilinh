@@ -15,7 +15,7 @@ const INITIAL_KNOWLEDGE_REPO = [
     effective_date: '2026-01-15',
     source_url: 'https://dilinh.lamdong.gov.vn/',
     locality: 'Di Linh, Lâm Đồng',
-    content: 'Địa điểm quét mã QR BHYT: Bà con Thôn 6 có thể sử dụng mã QR BHYT để khám chữa bệnh tại Trung tâm Y tế Huyện Di Linh, Trạm Y tế Xã Di Linh và tất cả các bệnh viện, phòng khám BHYT trên toàn tỉnh Lâm Đồng mà không cần mang theo thẻ BHYT giấy.\n\nCác bước thực hiện trên điện thoại:\n1. Mở ứng dụng VNeID (đã kích hoạt Mức 2) hoặc ứng dụng VssID (BHXH số).\n2. Vào mục "Ví giấy tờ" -> Chọn mục "Thẻ BHYT" -> Nhập mã Passcode 6 số để mở thẻ.\n3. Đưa mã QR hiển thị trên màn hình cho cán bộ y tế tại Quầy Tiếp Đón để quét vào hệ thống.\n\nLưu ý: Nếu chưa tích hợp BHYT vào VNeID, bà con mang CCCD và thẻ BHYT giấy đến Công an Xã Di Linh hoặc liên hệ Tổ CNS Thôn 6 (Hotline: 0943.849.295) để được hỗ trợ tích hợp miễn phí tận nhà.',
+    content: 'Địa điểm quét mã QR BHYT: Bà con Thôn 6 có thể sử dụng mã QR BHYT để khám chữa bệnh tại Trung tâm Y tế Huyện Di Linh, Trạm Y tế Xã Di Linh và tất cả các bệnh viện, phòng khám BHYT trên toàn tỉnh Lâm Đồng mà không cần mang theo thẻ BHYT giấy.\n\nCác bước thực hiện trên điện thoại:\n1. Mở ứng dụng VNeID (đã kích hoạt Mức 2) hoặc ứng dụng VssID (BHXH số).\n2. Vào mục "Ví giấy tờ" -> Chọn mục "Thẻ BHYT" -> Nhập mã Passcode 6 số để mở thẻ.\n3. Đưa mã QR hiển thị trên màn hình cho cán bộ y tế tại Quầy Tiếp Đón để quét vào hệ thống.\n\nLưu ý: Nếu chưa tích hợp BHYT vào VNeID, bà con mang CCCD và thẻ BHYT giấy đến Công an Xã Di Linh hoặc liên hệ Tổ CNS Thôn 6 (Hotline: 0903.382.277) để được hỗ trợ tích hợp miễn phí tận nhà.',
     verified: true,
     status: 'active',
     last_updated: '2026-01-15T08:00:00.000Z'
@@ -45,7 +45,7 @@ const INITIAL_KNOWLEDGE_REPO = [
     effective_date: '2026-02-01',
     source_url: 'https://dilinh.lamdong.gov.vn/',
     locality: 'Di Linh, Lâm Đồng',
-    content: 'Cảnh báo 5 thủ đoạn lừa đảo phổ biến tại Di Linh:\n1. Cuộc gọi mạo danh Công an, Tòa án, Viện kiểm sát đe dọa liên quan vi phạm và yêu cầu chuyển tiền vào "tài khoản an toàn".\n2. Mạo danh cán bộ hướng dẫn cập nhật VNeID Mức 2 bằng cách gửi đường link tải ứng dụng lạ (file .apk) chứa mã độc chiếm đoạt tài khoản ngân hàng.\n3. Tin nhắn báo trúng thưởng, quà tặng tri ân hoặc tuyển cộng tác viên làm việc online thu nhập cao.\n4. Giả danh người thân dùng công nghệ Deepfake gọi video mượn tiền cấp cứu.\n5. Cuộc gọi dọa khóa SIM điện thoại sau 2 giờ nếu không cung cấp thông tin.\n\nNGUYÊN TẮC VÀNG:\n- Cơ quan Công an và cơ quan nhà nước KHÔNG BAO GIỜ làm việc qua điện thoại và KHÔNG BAO GIỜ yêu cầu chuyển tiền.\n- Tuyệt đối KHÔNG cung cấp mã OTP, mật khẩu hay mã PIN cho bất kỳ ai.\n- Khi có dấu hiệu nghi ngờ, gọi ngay Hotline Tổ CNS Thôn 6: 0943.849.295 hoặc đến Công an Xã Di Linh.',
+    content: 'Cảnh báo 5 thủ đoạn lừa đảo phổ biến tại Di Linh:\n1. Cuộc gọi mạo danh Công an, Tòa án, Viện kiểm sát đe dọa liên quan vi phạm và yêu cầu chuyển tiền vào "tài khoản an toàn".\n2. Mạo danh cán bộ hướng dẫn cập nhật VNeID Mức 2 bằng cách gửi đường link tải ứng dụng lạ (file .apk) chứa mã độc chiếm đoạt tài khoản ngân hàng.\n3. Tin nhắn báo trúng thưởng, quà tặng tri ân hoặc tuyển cộng tác viên làm việc online thu nhập cao.\n4. Giả danh người thân dùng công nghệ Deepfake gọi video mượn tiền cấp cứu.\n5. Cuộc gọi dọa khóa SIM điện thoại sau 2 giờ nếu không cung cấp thông tin.\n\nNGUYÊN TẮC VÀNG:\n- Cơ quan Công an và cơ quan nhà nước KHÔNG BAO GIỜ làm việc qua điện thoại và KHÔNG BAO GIỜ yêu cầu chuyển tiền.\n- Tuyệt đối KHÔNG cung cấp mã OTP, mật khẩu hay mã PIN cho bất kỳ ai.\n- Khi có dấu hiệu nghi ngờ, gọi ngay Hotline Tổ CNS Thôn 6: 0903.382.277 hoặc đến Công an Xã Di Linh.',
     verified: true,
     status: 'active',
     last_updated: '2026-02-01T09:15:00.000Z'
@@ -105,7 +105,7 @@ const INITIAL_KNOWLEDGE_REPO = [
     effective_date: '2026-02-05',
     source_url: 'https://dilinh.lamdong.gov.vn/',
     locality: 'Di Linh, Lâm Đồng',
-    content: 'Lịch hỗ trợ người dân Thôn 6:\n- Địa điểm tập trung: Nhà sinh hoạt cộng đồng Thôn 6 vào các ngày Thứ Bảy và Chủ Nhật hàng tuần (Sáng: 8h00 - 11h00, Chiều: 14h00 - 17h00).\n- Hỗ trợ tại nhà: Đội tình nguyện viên thanh niên sẵn sàng đến tận nhà hỗ trợ các bác cao tuổi, người neo đơn hoặc khuyết tật.\n- Nội dung hỗ trợ: Kích hoạt VNeID Mức 2, tích hợp BHYT, cài đặt ví điện tử thanh toán tiền điện nước, tạo mã QR nông sản và hướng dẫn nhận biết thủ đoạn lừa đảo.\n- Hotline hỗ trợ khẩn cấp: 0943.849.295 (Tổ trưởng Tổ CNS Thôn 6).',
+    content: 'Lịch hỗ trợ người dân Thôn 6:\n- Địa điểm tập trung: Nhà sinh hoạt cộng đồng Thôn 6 vào các ngày Thứ Bảy và Chủ Nhật hàng tuần (Sáng: 8h00 - 11h00, Chiều: 14h00 - 17h00).\n- Hỗ trợ tại nhà: Đội tình nguyện viên thanh niên sẵn sàng đến tận nhà hỗ trợ các bác cao tuổi, người neo đơn hoặc khuyết tật.\n- Nội dung hỗ trợ: Kích hoạt VNeID Mức 2, tích hợp BHYT, cài đặt ví điện tử thanh toán tiền điện nước, tạo mã QR nông sản và hướng dẫn nhận biết thủ đoạn lừa đảo.\n- Hotline hỗ trợ khẩn cấp: 0903.382.277 (Tổ trưởng Tổ CNS Thôn 6).',
     verified: true,
     status: 'active',
     last_updated: '2026-02-05T08:30:00.000Z'

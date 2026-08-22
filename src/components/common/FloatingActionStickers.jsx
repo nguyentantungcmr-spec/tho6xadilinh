@@ -4,7 +4,7 @@ import { Sparkles, MessageCircle, Phone } from 'lucide-react';
 /**
  * COMPONENT FLOATING ACTION STICKERS
  * Cụm 2 sticker nổi cố định ở góc dưới màn hình:
- * 1. Sticker Chat Zalo (0943.849.295)
+ * 1. Sticker Chat Zalo (0903.382.277)
  * 2. Sticker Trợ Lý AI Cộng Đồng Thôn 6
  */
 export default function FloatingActionStickers({ onOpenAiAssistant }) {
@@ -13,13 +13,13 @@ export default function FloatingActionStickers({ onOpenAiAssistant }) {
       aria-label="Cụm nút hỗ trợ nhanh"
       className="fixed bottom-5 right-4 sm:right-6 z-40 flex flex-col items-end gap-2.5 pointer-events-none select-none animate-fade-in"
     >
-      {/* 1. STICKER CHAT ZALO (0943.849.295) */}
+      {/* 1. STICKER CHAT ZALO (0903.382.277) */}
       <a
-        href="https://zalo.me/0943849295"
+        href="https://zalo.me/0903382277"
         target="_blank"
         rel="noopener noreferrer"
-        aria-label="Liên hệ Zalo Tổ CNS Thôn 6: 0943.849.295"
-        title="Bấm để mở Zalo chat trực tiếp với Tổ CNS: 0943.849.295"
+        aria-label="Liên hệ Zalo Tổ CNS Thôn 6: 0903.382.277"
+        title="Bấm để mở Zalo chat trực tiếp với Tổ CNS: 0903.382.277"
         className="pointer-events-auto group flex items-center gap-2.5 px-3.5 py-2 rounded-full bg-gradient-to-r from-[#0068FF] to-[#0089e8] text-white shadow-xl hover:shadow-2xl hover:shadow-blue-500/40 transform hover:-translate-y-1 hover:scale-105 active:scale-95 transition-all duration-200 border-2 border-white/90 cursor-pointer backdrop-blur-xs"
       >
         <span className="relative flex h-3 w-3 shrink-0">
@@ -37,7 +37,7 @@ export default function FloatingActionStickers({ onOpenAiAssistant }) {
             Chat Zalo Hỗ Trợ
           </div>
           <div className="text-xs font-black text-white mt-0.5 leading-none tracking-tight">
-            0943.849.295
+            0903.382.277
           </div>
         </div>
       </a>

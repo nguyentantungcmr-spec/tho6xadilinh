@@ -131,7 +131,7 @@ export const askOfficialDocAI = async (userQuestion, officialDocs = []) => {
                 `Em đã ghi nhận câu hỏi: "**${userQuestion}**".\n\n` +
                 `✅ **EM ĐÃ TỰ ĐỘNG LƯU VÀO CSDL VÀ BÁO CHO TỔ CÔNG NGHỆ SỐ CỘNG ĐỒNG THÔN 6!**\n` +
                 `Các thành viên Tổ CNS sẽ rà soát chỉ đạo từ UBND Di Linh và phản hồi trực tiếp cho bà con sớm nhất ạ.\n\n` +
-                `🌐 Bà con có thể tự tra cứu tại Cổng TTĐT Di Linh [dilinh.lamdong.gov.vn](https://dilinh.lamdong.gov.vn/) hoặc gọi Hotline: **0943.849.295**.`,
+                `🌐 Bà con có thể tự tra cứu tại Cổng TTĐT Di Linh [dilinh.lamdong.gov.vn](https://dilinh.lamdong.gov.vn/) hoặc gọi Hotline: **0903.382.277**.`,
           escalatedToCNS: true,
           intent: { code: 'OTHER', label: '💡 Hỏi đáp tổng hợp' },
           confidence: 0,
@@ -163,7 +163,7 @@ export const askOfficialDocAI = async (userQuestion, officialDocs = []) => {
       text: `🤖 **Trợ lý AI Thôn 6 thông báo:**\n\n` +
             `Em đã ghi nhận câu hỏi: "**${userQuestion}**".\n\n` +
             `✅ **EM ĐÃ TỰ ĐỘNG GỬI CÂU HỎI NÀY TỚI TỔ CÔNG NGHỆ SỐ CỘNG ĐỒNG THÔN 6!**\n` +
-            `Thành viên Tổ CNS sẽ rà soát văn bản và phản hồi cho bà con sớm nhất ạ. Hotline hỗ trợ: **0943.849.295**.`,
+            `Thành viên Tổ CNS sẽ rà soát văn bản và phản hồi cho bà con sớm nhất ạ. Hotline hỗ trợ: **0903.382.277**.`,
       isUnknown: true,
       suggestions: [
         'Cài VNeID Mức 2 cần giấy tờ gì?',

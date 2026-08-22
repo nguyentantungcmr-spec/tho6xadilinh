@@ -55,10 +55,10 @@ export const extractSuggestedActions = ({
 
     actions.push({
       id: 'action-call-hotline',
-      label: '📞 Gọi Hotline 0943.849.295',
+      label: '📞 Gọi Hotline 0903.382.277',
       sublabel: 'Tổ trưởng Tổ CNS Thôn 6',
       type: ACTION_TYPES.CALL,
-      target: 'tel:0943849295',
+      target: 'tel:0903382277',
       color: 'from-emerald-600 to-teal-600 text-white',
       badge: 'Gọi Ngay'
     });
@@ -115,10 +115,10 @@ export const extractSuggestedActions = ({
 
     actions.push({
       id: 'action-scam-call',
-      label: '📞 Gọi Hotline Khẩn Cấp (0943.849.295)',
+      label: '📞 Gọi Hotline Khẩn Cấp (0903.382.277)',
       sublabel: 'Tổ trưởng CNS hỗ trợ ngăn chặn lừa đảo',
       type: ACTION_TYPES.CALL,
-      target: 'tel:0943849295',
+      target: 'tel:0903382277',
       color: 'from-emerald-600 to-teal-600 text-white',
       badge: 'Hotline 24/7'
     });

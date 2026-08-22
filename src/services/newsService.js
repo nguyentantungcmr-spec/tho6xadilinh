@@ -64,7 +64,7 @@ export function getDailyDynamicNews(baseDate = new Date()) {
 - Bà con chú ý kiểm tra hệ thống thoát nước vườn cà phê, bón phân cân đối đợt nuôi quả và kiểm tra phòng trừ bệnh rỉ sắt, mọt đục cành.
 
 3. HỖ TRỢ NÔNG DÂN SỐ:
-Tổ CNS Thôn 6 hỗ trợ bà con kết nối bán hàng qua nhóm Zalo Cộng đồng và sàn thương mại điện tử miễn phí. Hotline: 0943.849.295.`,
+Tổ CNS Thôn 6 hỗ trợ bà con kết nối bán hàng qua nhóm Zalo Cộng đồng và sàn thương mại điện tử miễn phí. Hotline: 0903.382.277.`,
       category: 'Nông Nghiệp Di Linh',
       category_color: 'bg-emerald-600',
       image_url: '/banner_2.png',

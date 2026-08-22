@@ -129,7 +129,7 @@ export function getDynamicLedMessages(customDate = new Date()) {
   // 3. THÔNG ĐIỆP THEO NGÀY TRONG TUẦN (LỊCH TẬP HUẤN / THI ĐUA)
   if (dayOfWeek === 6 || dayOfWeek === 0) {
     // Thứ 7 hoặc Chủ Nhật
-    messages.push('📅 HÔM NAY CUỐI TUẦN: Tổ Công nghệ số Cộng đồng Thôn 6 & Đội Thanh niên tổ chức hỗ trợ CẦM TAY CHỈ VIỆC tại Nhà sinh hoạt cộng đồng và đến tận nhà bà con. Hotline: 0943.849.295!');
+    messages.push('📅 HÔM NAY CUỐI TUẦN: Tổ Công nghệ số Cộng đồng Thôn 6 & Đội Thanh niên tổ chức hỗ trợ CẦM TAY CHỈ VIỆC tại Nhà sinh hoạt cộng đồng và đến tận nhà bà con. Hotline: 0903.382.277!');
   } else {
     // Ngày trong tuần
     messages.push('📢 THÔNG BÁO: Bà con Thôn 6 cần hỗ trợ cài đặt VNeID Mức 2, quét mã QR BHYT khám bệnh hoặc làm Dịch vụ công xin bấm nút "🆘 Gửi Yêu Cầu Hỗ Trợ Số" để được tình nguyện viên đến tận nhà giúp đỡ.');

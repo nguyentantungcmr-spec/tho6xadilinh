@@ -124,7 +124,7 @@ export const generateGroundedAnswer = (question, intent, searchResult, confidenc
           `Dạ thưa Bác/anh/chị, câu hỏi "**${question}**" hiện chưa có văn bản chỉ đạo chi tiết trong CSDL trực tiếp.\n\n` +
           `✅ **EM ĐÃ TỰ ĐỘNG GHI NHẬN & CHUYỂN CÂU HỎI NÀY ĐẾN TỔ CÔNG NGHỆ SỐ CỘNG ĐỒNG THÔN 6!**\n` +
           `Ban điều hành Tổ CNS sẽ đối chiếu chỉ đạo từ UBND Di Linh và cập nhật tài liệu chính thức cho bà con sớm nhất ạ.\n\n` +
-          `🌐 Bà con có thể tự tra cứu tại Cổng TTĐT Di Linh [dilinh.lamdong.gov.vn](${sourceUrl}) hoặc gọi Hotline: **0943.849.295**.`,
+          `🌐 Bà con có thể tự tra cứu tại Cổng TTĐT Di Linh [dilinh.lamdong.gov.vn](${sourceUrl}) hoặc gọi Hotline: **0903.382.277**.`,
     isGrounded: false,
     doc: null
   };

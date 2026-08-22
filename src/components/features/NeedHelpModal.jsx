@@ -97,7 +97,7 @@ export default function NeedHelpModal({ isOpen, onClose }) {
               <input
                 type="tel"
                 required
-                placeholder="0943.xxx.xxx"
+                placeholder="0903.xxx.xxx"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 font-medium"
@@ -170,11 +170,11 @@ export default function NeedHelpModal({ isOpen, onClose }) {
 
             <div className="pt-1 text-center">
               <a 
-                href="tel:0943849295"
+                href="tel:0903382277"
                 className="inline-flex items-center gap-1.5 text-xs font-extrabold text-emerald-700 hover:underline"
               >
                 <PhoneCall className="w-3.5 h-3.5" />
-                <span>Hoặc Gọi Trực Tiếp Hotline: 0943.849.295</span>
+                <span>Hoặc Gọi Trực Tiếp Hotline: 0903.382.277</span>
               </a>
             </div>
           </form>

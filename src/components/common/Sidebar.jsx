@@ -185,11 +185,11 @@ export default function Sidebar({
         {/* HOTLINE CẦM TAY CHỈ VIỆC */}
         <div className="pt-3 border-t border-slate-100 text-center">
           <a 
-            href="tel:0943849295"
+            href="tel:0903382277"
             className="inline-flex items-center gap-1.5 text-xs font-black text-emerald-800 bg-emerald-100 hover:bg-emerald-200 px-3 py-2 rounded-xl border border-emerald-300 w-full justify-center shadow-xs transition"
           >
             <PhoneCall className="w-4 h-4 text-emerald-700 animate-pulse" />
-            <span>Hotline Cầm Tay Chỉ Việc: 0943.849.295</span>
+            <span>Hotline Cầm Tay Chỉ Việc: 0903.382.277</span>
           </a>
         </div>
 

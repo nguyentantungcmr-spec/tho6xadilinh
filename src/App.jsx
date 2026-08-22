@@ -546,7 +546,7 @@ export default function App() {
                     className="w-full h-full object-contain"
                     onError={(e) => {
                       e.currentTarget.onerror = null;
-                      e.currentTarget.src = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https://zalo.me/0943849295';
+                      e.currentTarget.src = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https://zalo.me/0903382277';
                     }}
                   />
                   <div className="absolute inset-0 bg-blue-600/15 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
@@ -1119,7 +1119,7 @@ export default function App() {
         onClose={() => setSelectedNews(null)}
       />
 
-      {/* CỤM STICKER NỔI GÓC MÀN HÌNH: ZALO 0943849295 & TRỢ LÝ AI */}
+      {/* CỤM STICKER NỔI GÓC MÀN HÌNH: ZALO 0903.382.277 & TRỢ LÝ AI */}
       <FloatingActionStickers
         onOpenAiAssistant={() => setIsAiAssistantOpen(true)}
       />
@@ -1163,7 +1163,7 @@ export default function App() {
                 className="w-56 h-56 object-contain rounded-xl shadow-sm"
                 onError={(e) => {
                   e.currentTarget.onerror = null;
-                  e.currentTarget.src = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https://zalo.me/0943849295';
+                  e.currentTarget.src = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https://zalo.me/0903382277';
                 }}
               />
             </div>
@@ -1171,7 +1171,7 @@ export default function App() {
             {/* NÚT HÀNH ĐỘNG */}
             <div className="flex gap-2">
               <a
-                href="https://zalo.me/0943849295"
+                href="https://zalo.me/0903382277"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex-1 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-black text-xs shadow-md transition flex items-center justify-center gap-1.5 cursor-pointer"
