@@ -109,3 +109,19 @@ export const createCommunityActivity = async (activityData) => {
     return { data: null, error: error.message };
   }
 };
+
+export const deleteCommunityActivity = async (id) => {
+  try {
+    const { error } = await supabase
+      .from('community_activities')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+    return { success: true, error: null };
+  } catch (error) {
+    console.error('Error deleting activity:', error);
+    return { success: false, error: error.message };
+  }
+};
+

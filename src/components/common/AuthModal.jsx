@@ -1,13 +1,10 @@
 import React, { useState } from 'react';
-import { X, Mail, Lock, User, CheckCircle, AlertCircle, Info } from 'lucide-react';
+import { X, Mail, Lock, User, CheckCircle, AlertCircle, ShieldAlert, KeyRound } from 'lucide-react';
 import { supabase } from '../../services/supabaseClient';
 
 export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
-  const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [fullName, setFullName] = useState('');
-  const [selectedRole, setSelectedRole] = useState('admin');
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
@@ -21,63 +18,42 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
     setSuccessMsg('');
 
     try {
-      if (isSignUp) {
-        // Đăng ký Supabase Auth với metadata role
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: {
-              full_name: fullName || email.split('@')[0],
-              role: selectedRole
-            }
-          }
-        });
+      // Đăng nhập Supabase Auth
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
 
-        if (error) throw error;
-
-        // Nếu Supabase Auth yêu cầu xác nhận email
-        if (data?.user && !data.session) {
-          setSuccessMsg('Đăng ký thành công! Nếu Supabase của bác có bật Confirm Email, vui lòng kiểm tra hộp thư hoặc dùng câu lệnh SQL kích hoạt tài khoản.');
-        } else {
-          setSuccessMsg('Đăng ký thành công! Đã kết nối cơ sở dữ liệu Supabase.');
-          setTimeout(() => {
-            onAuthSuccess(data.user, selectedRole);
-            onClose();
-          }, 1200);
+      if (error) {
+        if (error.message.includes('Invalid login credentials')) {
+          throw new Error('Email hoặc mật khẩu không chính xác. Vui lòng kiểm tra lại hoặc liên hệ Quản trị viên Thôn 6 để được cấp lại tài khoản.');
         }
-
-      } else {
-        // Đăng nhập Supabase Auth
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email,
-          password
-        });
-
-        if (error) {
-          // Xử lý lỗi Email chưa xác nhận bằng Tiếng Việt thân thiện
-          if (error.message.includes('Email not confirmed')) {
-            throw new Error('Email chưa được kích hoạt trên Supabase. Thầy/Cô vui lòng chạy câu lệnh SQL bên dưới trên Supabase SQL Editor để kích hoạt tài khoản Quản trị viên ngay nhé!');
-          }
-          throw error;
+        if (error.message.includes('Email not confirmed')) {
+          throw new Error('Email chưa được kích hoạt trên hệ thống Supabase. Vui lòng liên hệ Quản trị viên Thôn 6 để được hỗ trợ.');
         }
-
-        // Lấy profile thực tế từ CSDL Supabase
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', data.user.id)
-          .single();
-
-        const userRole = profile ? profile.role : selectedRole;
-        setSuccessMsg('Đăng nhập thành công với quyền Quản trị!');
-        setTimeout(() => {
-          onAuthSuccess(data.user, userRole);
-          onClose();
-        }, 1000);
+        throw error;
       }
+
+      // Lấy profile và vai trò thực tế từ CSDL Supabase
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role, full_name')
+        .eq('id', data.user.id)
+        .single();
+
+      const userRole = profile?.role || 'citizen';
+      const roleDisplayName = 
+        userRole === 'admin' ? 'Quản trị viên' :
+        userRole === 'tech_team' ? 'Tổ công nghệ số' :
+        userRole === 'supporter' ? 'Người hỗ trợ số' : 'Người dân Thôn 6';
+
+      setSuccessMsg(`Đăng nhập thành công! Chào mừng ${profile?.full_name || email} (${roleDisplayName}).`);
+      setTimeout(() => {
+        onAuthSuccess(data.user, userRole);
+        onClose();
+      }, 1000);
     } catch (err) {
-      setErrorMsg(err.message || 'Có lỗi xảy ra khi xác thực với Supabase');
+      setErrorMsg(err.message || 'Có lỗi xảy ra khi đăng nhập vào hệ thống');
     } finally {
       setLoading(false);
     }
@@ -90,21 +66,30 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
         {/* CLOSE BUTTON */}
         <button
           onClick={onClose}
-          className="absolute top-5 right-5 p-2 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition"
+          className="absolute top-5 right-5 p-2 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer"
         >
           <X className="w-5 h-5" />
         </button>
 
-        <div className="text-center mb-6">
+        <div className="text-center mb-5">
           <div className="w-12 h-12 rounded-2xl bg-blue-100 text-blue-700 flex items-center justify-center mx-auto mb-3">
-            <User className="w-6 h-6" />
+            <KeyRound className="w-6 h-6" />
           </div>
           <h2 className="text-2xl font-black text-slate-900">
-            {isSignUp ? 'Đăng Ký Tài Khoản' : 'Đăng Nhập Hệ Thống'}
+            Đăng Nhập Thành Viên
           </h2>
           <p className="text-xs text-slate-500 mt-1">
-            Nền tảng Chuyển đổi số & Học tập Cộng đồng Thôn 6 Xã Di Linh
+            Cổng Thông Tin Chuyển Đổi Số Thôn 6 Xã Di Linh
           </p>
+        </div>
+
+        {/* THÔNG BÁO BẢO MẬT: CHỈ QUẢN TRỊ VIÊN MỚI CÓ QUYỀN CẤP TÀI KHOẢN */}
+        <div className="mb-4 p-3 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs leading-relaxed flex items-start gap-2.5">
+          <ShieldAlert className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+          <div>
+            <span className="font-black block text-amber-950">Quy định bảo mật hệ thống:</span>
+            <span>Các thành viên và người dân không có chức năng tự đăng ký. Tài khoản thành viên do <strong>Quản trị viên</strong> trực tiếp tạo và cấp quyền trong hệ thống.</span>
+          </div>
         </div>
 
         {/* NOTIFICATION MESSAGES */}
@@ -125,31 +110,14 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {isSignUp && (
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Họ và tên</label>
-              <div className="relative">
-                <User className="w-4 h-4 absolute left-3.5 top-3 text-slate-400" />
-                <input
-                  type="text"
-                  required={isSignUp}
-                  placeholder="Ví dụ: Nguyen Van A"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-            </div>
-          )}
-
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">Email liên hệ</label>
+            <label className="block text-xs font-bold text-slate-700 mb-1">Email được cấp</label>
             <div className="relative">
               <Mail className="w-4 h-4 absolute left-3.5 top-3 text-slate-400" />
               <input
                 type="email"
                 required
-                placeholder="tantung08@gmail.com"
+                placeholder="Ví dụ: tantung08@gmail.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
@@ -172,44 +140,17 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
             </div>
           </div>
 
-          {/* CHỌN VAI TRÒ */}
-          <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">
-              Chọn Vai trò trong Hệ thống:
-            </label>
-            <select
-              value={selectedRole}
-              onChange={(e) => setSelectedRole(e.target.value)}
-              className="w-full py-2.5 px-3 rounded-xl border border-slate-300 text-sm font-bold bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="admin">⚙️ 4. Quản trị viên (Cán bộ Xã Di Linh)</option>
-              <option value="tech_team">👥 3. Cán bộ Tổ công nghệ số cộng đồng</option>
-              <option value="supporter">🤝 2. Người hỗ trợ số (Thanh niên/Tình nguyện viên)</option>
-              <option value="citizen">👤 1. Người dân Thôn 6</option>
-            </select>
-          </div>
-
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-md transition disabled:opacity-50"
+            className="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-md transition disabled:opacity-50 cursor-pointer"
           >
-            {loading ? 'Đang xác thực Supabase...' : (isSignUp ? 'Đăng Ký Tài Khoản' : 'Đăng Nhập')}
+            {loading ? 'Đang xác thực hệ thống...' : 'Đăng Nhập'}
           </button>
         </form>
 
-        <div className="mt-6 text-center border-t border-slate-100 pt-4">
-          <button
-            type="button"
-            onClick={() => {
-              setIsSignUp(!isSignUp);
-              setErrorMsg('');
-              setSuccessMsg('');
-            }}
-            className="text-xs font-bold text-blue-600 hover:underline"
-          >
-            {isSignUp ? 'Đã có tài khoản? Đăng nhập ngay' : 'Chưa có tài khoản? Đăng ký tại đây'}
-          </button>
+        <div className="mt-5 text-center border-t border-slate-100 pt-3 text-xs text-slate-500 font-medium">
+          Chưa được cấp tài khoản? Liên hệ Quản trị viên qua Hotline: <strong className="text-emerald-700 font-black">0903.382.277</strong>
         </div>
 
       </div>

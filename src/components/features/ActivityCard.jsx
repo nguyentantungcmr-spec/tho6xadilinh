@@ -1,7 +1,7 @@
 import React from 'react';
-import { Users, HeartHandshake, Award, Calendar, CheckCircle2, User, ExternalLink, Sparkles } from 'lucide-react';
+import { Users, HeartHandshake, Award, Calendar, CheckCircle2, User, ExternalLink, Sparkles, Trash2 } from 'lucide-react';
 
-export default function ActivityCard({ activity }) {
+export default function ActivityCard({ activity, role = 'citizen', onDelete }) {
   return (
     <div className={`bg-white rounded-2xl border shadow-xs hover:shadow-xl transition duration-300 p-5 flex flex-col justify-between ${
       activity.is_featured ? 'border-amber-300 ring-2 ring-amber-100' : 'border-slate-200'
@@ -22,10 +22,25 @@ export default function ActivityCard({ activity }) {
             )}
           </div>
           
-          <span className="text-[11px] text-slate-400 font-semibold flex items-center gap-1">
-            <Calendar className="w-3 h-3" />
-            {new Date(activity.created_at || Date.now()).toLocaleDateString('vi-VN')}
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] text-slate-400 font-semibold flex items-center gap-1">
+              <Calendar className="w-3 h-3" />
+              {new Date(activity.created_at || Date.now()).toLocaleDateString('vi-VN')}
+            </span>
+
+            {/* QUYỀN ĐỘC QUYỀN CỦA QUẢN TRỊ VIÊN: XÓA BÀI ĐĂNG */}
+            {role === 'admin' && onDelete && (
+              <button
+                type="button"
+                onClick={() => onDelete(activity)}
+                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-red-50 hover:bg-red-600 text-red-700 hover:text-white text-[11px] font-bold border border-red-200 hover:border-red-600 transition shadow-xs cursor-pointer ml-1"
+                title="Chỉ Quản trị viên mới có quyền xóa bài đăng này"
+              >
+                <Trash2 className="w-3 h-3" />
+                <span>Xóa bài</span>
+              </button>
+            )}
+          </div>
         </div>
 
         <h3 className="font-extrabold text-slate-900 text-base sm:text-lg mb-2 leading-snug hover:text-emerald-700 transition">

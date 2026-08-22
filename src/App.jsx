@@ -8,7 +8,7 @@ import {
 // SERVICES SUPABASE
 import { supabase } from './services/supabaseClient';
 import { getLearningResources } from './services/resourceService';
-import { getCommunityActivities } from './services/communityService';
+import { getCommunityActivities, deleteCommunityActivity } from './services/communityService';
 import { getLearningModels } from './services/modelService';
 import { getOfficialDocuments } from './services/officialDocService';
 import { INITIAL_NEWS, getNewsArticles } from './services/newsService';
@@ -36,6 +36,7 @@ import UploadResourceModal from './components/features/UploadResourceModal';
 import NeedHelpModal from './components/features/NeedHelpModal';
 import MySkillsModal from './components/features/MySkillsModal';
 import KnowledgeAdminModal from './components/admin/KnowledgeAdminModal';
+import AdminControlModal from './components/admin/AdminControlModal';
 import NewsCard from './components/features/NewsCard';
 import NewsDetailModal from './components/features/NewsDetailModal';
 import WeatherAgriWidget from './components/features/WeatherAgriWidget';
@@ -195,6 +196,7 @@ export default function App() {
   const [isNeedHelpOpen, setIsNeedHelpOpen] = useState(false);
   const [isMySkillsOpen, setIsMySkillsOpen] = useState(false);
   const [isKnowledgeAdminOpen, setIsKnowledgeAdminOpen] = useState(false);
+  const [isAdminControlOpen, setIsAdminControlOpen] = useState(false);
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
 
   useEffect(() => {
@@ -361,6 +363,17 @@ export default function App() {
     setRole(userRole || 'citizen');
   };
 
+  // QUYỀN ĐỘC QUYỀN CỦA QUẢN TRỊ VIÊN: XÓA BÀI ĐĂNG HOẠT ĐỘNG
+  const handleDeleteActivity = async (activity) => {
+    if (role !== 'admin') {
+      alert('Chỉ Quản trị viên mới có quyền xóa bài đăng!');
+      return;
+    }
+    const res = await deleteCommunityActivity(activity.id);
+    setActivities(prev => prev.filter(a => a.id !== activity.id));
+    alert(`Đã xóa thành công bài đăng: "${activity.title}"`);
+  };
+
   // ĐIỀU HƯỚNG TỪ NÚT GỢI Ý CỦA TRỢ LÝ AI TỚI CÁC TRANG & CHỨC NĂNG CỦA WEBSITE
   const handleAiNavigate = (actionType, target, payload) => {
     setIsAiAssistantOpen(false);
@@ -379,6 +392,7 @@ export default function App() {
       else if (target === 'upload_official') setIsUploadOfficialOpen(true);
       else if (target === 'auth') setIsAuthOpen(true);
       else if (target === 'knowledge_admin') setIsKnowledgeAdminOpen(true);
+      else if (target === 'admin_control') setIsAdminControlOpen(true);
     } else if (actionType === 'resource') {
       const found = resources.find(r => r.id === target);
       if (found) {
@@ -417,6 +431,7 @@ export default function App() {
         onLogout={handleLogout}
         onOpenAiAssistant={() => setIsAiAssistantOpen(true)}
         onOpenKnowledgeAdmin={() => setIsKnowledgeAdminOpen(true)}
+        onOpenAdminControl={() => setIsAdminControlOpen(true)}
         onToggleSidebar={() => setIsOpenMobileSidebar(!isOpenMobileSidebar)}
       />
 
@@ -593,6 +608,7 @@ export default function App() {
           onOpenNeedHelp={() => setIsNeedHelpOpen(true)}
           onOpenUploadActivity={() => setIsUploadActivityOpen(true)}
           onOpenMySkills={() => setIsMySkillsOpen(true)}
+          onOpenAdminControl={() => setIsAdminControlOpen(true)}
           isOpenMobile={isOpenMobileSidebar}
           onCloseMobile={() => setIsOpenMobileSidebar(false)}
         />
@@ -983,7 +999,12 @@ export default function App() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 {activities.map(act => (
-                  <ActivityCard key={act.id} activity={act} />
+                  <ActivityCard 
+                    key={act.id} 
+                    activity={act} 
+                    role={role}
+                    onDelete={handleDeleteActivity}
+                  />
                 ))}
               </div>
             </section>
@@ -1112,6 +1133,15 @@ export default function App() {
       <KnowledgeAdminModal
         isOpen={isKnowledgeAdminOpen}
         onClose={() => setIsKnowledgeAdminOpen(false)}
+      />
+
+      {/* TRUNG TÂM QUẢN TRỊ ADMIN (CẤP TÀI KHOẢN & XÓA BÀI ĐĂNG) */}
+      <AdminControlModal
+        isOpen={isAdminControlOpen}
+        onClose={() => setIsAdminControlOpen(false)}
+        activities={activities}
+        onDeleteActivity={handleDeleteActivity}
+        onRefreshActivities={fetchInitialData}
       />
 
       <NewsDetailModal

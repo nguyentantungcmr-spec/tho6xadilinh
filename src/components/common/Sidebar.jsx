@@ -13,6 +13,7 @@ export default function Sidebar({
   onOpenNeedHelp,
   onOpenUploadActivity,
   onOpenMySkills,
+  onOpenAdminControl,
   isOpenMobile,
   onCloseMobile
 }) {
@@ -127,6 +128,34 @@ export default function Sidebar({
           <div className="text-[11px] font-black uppercase text-slate-400 tracking-wider px-1">
             Menu Hành Động Số Thôn 6
           </div>
+
+          {/* NÚT TRUNG TÂM QUẢN TRỊ ADMIN (CẤP TÀI KHOẢN & XÓA BÀI) */}
+          {role === 'admin' && (
+            <button
+              onClick={() => {
+                if (onOpenAdminControl) onOpenAdminControl();
+                if (onCloseMobile) onCloseMobile();
+              }}
+              className="w-full p-3.5 rounded-2xl bg-gradient-to-r from-purple-700 via-indigo-700 to-slate-900 text-white shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-between text-left group border border-purple-300/40 cursor-pointer"
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-2xl group-hover:rotate-12 transition-transform duration-200">
+                  ⚙️
+                </span>
+                <div>
+                  <h3 className="font-black text-sm tracking-tight text-white leading-snug">
+                    QUẢN TRỊ HỆ THỐNG
+                  </h3>
+                  <span className="text-[10px] font-bold text-amber-300 uppercase">
+                    Cấp Tài Khoản & Xóa Bài
+                  </span>
+                </div>
+              </div>
+              <span className="text-white/70 group-hover:text-white group-hover:translate-x-1 transition font-bold text-lg">
+                ›
+              </span>
+            </button>
+          )}
 
           {/* DANH SÁCH 6 THẺ MENU NỔI BẬT */}
           <div className="space-y-2.5">
