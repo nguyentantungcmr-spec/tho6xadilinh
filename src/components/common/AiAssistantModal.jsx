@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   X, Bot, Sparkles, Send, BookOpen, ShieldCheck, AlertCircle, 
   FileText, CheckCircle2, Clock, ArrowRight, ExternalLink, PhoneCall, 
-  Video, HeartHandshake, Award, HelpCircle, FileCheck
+  Video, HeartHandshake, Award, HelpCircle, FileCheck, Mic, MicOff, Volume2, VolumeX
 } from 'lucide-react';
 import { askOfficialDocAI, getUnansweredQuestions } from '../../services/officialDocService';
 import { extractSuggestedActions, ACTION_TYPES } from '../../services/aiActionRoutingService';
@@ -10,6 +10,9 @@ import { extractSuggestedActions, ACTION_TYPES } from '../../services/aiActionRo
 export default function AiAssistantModal({ isOpen, onClose, officialDocs = [], onNavigate }) {
   const [activeTab, setActiveTab] = useState('chat'); // 'chat' | 'unanswered'
   const [question, setQuestion] = useState('');
+  const [isListening, setIsListening] = useState(false);
+  const [speakingIndex, setSpeakingIndex] = useState(null);
+  const recognitionRef = useRef(null);
   
   const initialWelcomeActions = extractSuggestedActions({
     text: 'Chào bác/anh/chị! Em là Trợ lý AI Chuyển đổi số Thôn 6 Xã Di Linh.'
@@ -28,8 +31,102 @@ export default function AiAssistantModal({ isOpen, onClose, officialDocs = [], o
   useEffect(() => {
     if (isOpen) {
       loadUnanswered();
+    } else {
+      // Dừng nghe và dừng đọc khi đóng modal
+      if (recognitionRef.current) {
+        try { recognitionRef.current.stop(); } catch (e) {}
+      }
+      setIsListening(false);
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+      setSpeakingIndex(null);
     }
   }, [isOpen]);
+
+  // HÀM BẬT / TẮT THU ÂM GIỌNG NÓI TIẾNG VIỆT
+  const toggleListening = () => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert('Trình duyệt của bác/anh/chị chưa hỗ trợ nhận diện giọng nói. Bác hãy thử dùng trình duyệt Google Chrome, Cốc Cốc hoặc Safari nhé!');
+      return;
+    }
+
+    if (isListening) {
+      if (recognitionRef.current) {
+        try { recognitionRef.current.stop(); } catch (e) {}
+      }
+      setIsListening(false);
+      return;
+    }
+
+    try {
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'vi-VN';
+      recognition.continuous = false;
+      recognition.interimResults = true;
+
+      recognition.onstart = () => {
+        setIsListening(true);
+      };
+
+      recognition.onresult = (event) => {
+        let transcript = '';
+        for (let i = 0; i < event.results.length; i++) {
+          transcript += event.results[i][0].transcript;
+        }
+        setQuestion(transcript);
+      };
+
+      recognition.onerror = (event) => {
+        console.warn('Lỗi nhận diện giọng nói:', event.error);
+        setIsListening(false);
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+
+      recognitionRef.current = recognition;
+      recognition.start();
+    } catch (err) {
+      console.error('Không thể kích hoạt micro:', err);
+      setIsListening(false);
+      alert('Không thể mở micro. Bác vui lòng cho phép quyền truy cập Micro trên trình duyệt nhé!');
+    }
+  };
+
+  // HÀM ĐỌC TO CÂU TRẢ LỜI CỦA AI BẰNG TIẾNG VIỆT
+  const speakText = (text, index) => {
+    if (!('speechSynthesis' in window)) {
+      alert('Trình duyệt không hỗ trợ phát âm thanh.');
+      return;
+    }
+
+    if (speakingIndex === index) {
+      window.speechSynthesis.cancel();
+      setSpeakingIndex(null);
+      return;
+    }
+
+    window.speechSynthesis.cancel();
+    // Loại bỏ các ký tự đặc biệt, emoji để giọng đọc truyền cảm tự nhiên
+    const cleanText = text
+      .replace(/🤖|🏛️|📚|💬|👨‍💼|↗|➔|📋|✨|⭐|🔍|❤️|📌/g, '')
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+      .trim();
+
+    const utterance = new SpeechSynthesisUtterance(cleanText);
+    utterance.lang = 'vi-VN';
+    utterance.rate = 0.95; // Tốc độ vừa phải, rõ ràng cho người lớn tuổi
+    utterance.pitch = 1.0;
+
+    utterance.onend = () => setSpeakingIndex(null);
+    utterance.onerror = () => setSpeakingIndex(null);
+
+    setSpeakingIndex(index);
+    window.speechSynthesis.speak(utterance);
+  };
 
   const loadUnanswered = async () => {
     const data = await getUnansweredQuestions();
@@ -207,7 +304,40 @@ export default function AiAssistantModal({ isOpen, onClose, officialDocs = [], o
                           : 'bg-white text-slate-800 border border-slate-200 rounded-tl-none'
                     }`}
                   >
-                    {msg.text}
+                    {/* NỘI DUNG CÂU TRẢ LỜI */}
+                    <div>{msg.text}</div>
+
+                    {/* NÚT ĐỌC TO CÂU TRẢ LỜI CHO NGƯỜI DÂN LỚN TUỔI NGHE */}
+                    {msg.sender === 'ai' && (
+                      <div className="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between">
+                        <button
+                          type="button"
+                          onClick={() => speakText(msg.text, index)}
+                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold transition cursor-pointer ${
+                            speakingIndex === index 
+                              ? 'bg-rose-100 text-rose-700 ring-1 ring-rose-300 animate-pulse' 
+                              : 'bg-slate-100 hover:bg-blue-100 text-slate-700 hover:text-blue-700'
+                          }`}
+                          title={speakingIndex === index ? "Bấm để dừng đọc" : "Bấm để AI đọc to câu trả lời cho bà con nghe"}
+                        >
+                          {speakingIndex === index ? (
+                            <>
+                              <VolumeX className="w-3.5 h-3.5 text-rose-600" />
+                              <span>Đang đọc... (Bấm dừng)</span>
+                            </>
+                          ) : (
+                            <>
+                              <Volume2 className="w-3.5 h-3.5 text-blue-600" />
+                              <span>🔊 Đọc to cho tôi nghe</span>
+                            </>
+                          )}
+                        </button>
+
+                        <span className="text-[10px] text-slate-400 font-medium hidden sm:inline">
+                          Dành cho bà con khó nhìn chữ
+                        </span>
+                      </div>
+                    )}
 
                     {/* HIỂN THỊ NGUỒN CHÍNH THỐNG KHI CÓ SOURCE TITLE & URL THỰC SỰ TRONG DATABASE */}
                     {msg.sender === 'ai' && msg.sourceTitle && (
@@ -345,19 +475,59 @@ export default function AiAssistantModal({ isOpen, onClose, officialDocs = [], o
               </div>
             </div>
 
-            {/* INPUT FORM */}
-            <form onSubmit={handleSend} className="p-4 bg-white border-t border-slate-200 flex items-center gap-2">
+            {/* BANNER THÔNG BÁO KHI ĐANG THU ÂM GIỌNG NÓI */}
+            {isListening && (
+              <div className="px-4 py-2 bg-gradient-to-r from-rose-500 to-pink-600 text-white text-xs font-bold flex items-center justify-between animate-pulse">
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-white animate-ping" />
+                  <span>🎙️ Đang nghe bác/anh/chị nói tiếng Việt... Bác cứ nói tự nhiên nhé!</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={toggleListening}
+                  className="px-2 py-0.5 bg-white text-rose-700 rounded-md text-[11px] font-black hover:bg-rose-100 transition cursor-pointer"
+                >
+                  Xong (Dừng lại)
+                </button>
+              </div>
+            )}
+
+            {/* INPUT FORM CÓ TÍCH HỢP NÚT MICRO VÀ NÚT GỬI */}
+            <form onSubmit={handleSend} className="p-3 sm:p-4 bg-white border-t border-slate-200 flex items-center gap-2">
+              {/* NÚT BẬT MICROPHONE DÀNH CHO BÀ CON KHÔNG BIẾT GÕ CHỮ */}
+              <button
+                type="button"
+                onClick={toggleListening}
+                className={`p-3 rounded-xl flex items-center justify-center transition-all duration-200 cursor-pointer shadow-md shrink-0 ${
+                  isListening
+                    ? 'bg-rose-600 text-white ring-4 ring-rose-200 scale-105 animate-pulse'
+                    : 'bg-gradient-to-r from-indigo-500 to-blue-600 hover:from-indigo-600 hover:to-blue-700 text-white'
+                }`}
+                title={isListening ? "Đang thu âm... Bấm để dừng" : "Bấm vào đây để nói bằng giọng nói (Dành cho bà con không quen gõ bàn phím)"}
+              >
+                {isListening ? (
+                  <MicOff className="w-5 h-5" />
+                ) : (
+                  <Mic className="w-5 h-5" />
+                )}
+              </button>
+
               <input
                 type="text"
-                placeholder="Bà con muốn hỏi điều gì (ví dụ: 'Cách quét QR', 'Lịch họp thôn')..."
+                placeholder={isListening ? "Đang lắng nghe giọng nói..." : "Hỏi điều gì hoặc bấm Micro bên trái để nói..."}
                 value={question}
                 onChange={(e) => setQuestion(e.target.value)}
-                className="flex-1 px-4 py-3 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
+                className={`flex-1 px-4 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 font-medium transition ${
+                  isListening 
+                    ? 'border-rose-400 bg-rose-50/50 text-rose-900 ring-2 ring-rose-300' 
+                    : 'border-slate-300 focus:ring-blue-500 text-slate-800'
+                }`}
               />
+
               <button
                 type="submit"
                 disabled={loading || !question.trim()}
-                className="px-5 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm flex items-center gap-1.5 transition shadow-md disabled:opacity-50"
+                className="px-4 sm:px-5 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm flex items-center gap-1.5 transition shadow-md disabled:opacity-50 cursor-pointer shrink-0"
               >
                 <span>Gửi</span>
                 <Send className="w-4 h-4" />
