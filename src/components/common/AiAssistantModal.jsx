@@ -28,11 +28,15 @@ export default function AiAssistantModal({ isOpen, onClose, officialDocs = [], o
   const [loading, setLoading] = useState(false);
   const [unansweredList, setUnansweredList] = useState([]);
 
+  const isListeningRef = useRef(false);
+  const finalTranscriptRef = useRef('');
+
   useEffect(() => {
     if (isOpen) {
       loadUnanswered();
     } else {
       // Dừng nghe và dừng đọc khi đóng modal
+      isListeningRef.current = false;
       if (recognitionRef.current) {
         try { recognitionRef.current.stop(); } catch (e) {}
       }
@@ -44,7 +48,7 @@ export default function AiAssistantModal({ isOpen, onClose, officialDocs = [], o
     }
   }, [isOpen]);
 
-  // HÀM BẬT / TẮT THU ÂM GIỌNG NÓI TIẾNG VIỆT
+  // HÀM BẬT / TẮT THU ÂM GIỌNG NÓI TIẾNG VIỆT LIÊN TỤC (HỖ TRỢ CÂU DÀI, NHIỀU CÂU)
   const toggleListening = () => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
@@ -52,7 +56,8 @@ export default function AiAssistantModal({ isOpen, onClose, officialDocs = [], o
       return;
     }
 
-    if (isListening) {
+    if (isListeningRef.current) {
+      isListeningRef.current = false;
       if (recognitionRef.current) {
         try { recognitionRef.current.stop(); } catch (e) {}
       }
@@ -60,39 +65,80 @@ export default function AiAssistantModal({ isOpen, onClose, officialDocs = [], o
       return;
     }
 
+    // Bắt đầu phiên thu âm mới
+    finalTranscriptRef.current = question ? question.trim() + ' ' : '';
+    startRecognitionSession(SpeechRecognition);
+  };
+
+  const startRecognitionSession = (SpeechRecognition) => {
     try {
+      if (recognitionRef.current) {
+        try { recognitionRef.current.stop(); } catch (e) {}
+      }
+
       const recognition = new SpeechRecognition();
       recognition.lang = 'vi-VN';
-      recognition.continuous = false;
-      recognition.interimResults = true;
+      recognition.continuous = true; // BẬT CHẾ ĐỘ THU ÂM LIÊN TỤC KHÔNG BỊ NGẮT KHI NÓI DÀI
+      recognition.interimResults = true; // HIỂN THỊ CHỮ THEO THỜI GIAN THỰC KHI ĐANG NÓI
+      recognition.maxAlternatives = 1;
 
       recognition.onstart = () => {
+        isListeningRef.current = true;
         setIsListening(true);
       };
 
       recognition.onresult = (event) => {
-        let transcript = '';
-        for (let i = 0; i < event.results.length; i++) {
-          transcript += event.results[i][0].transcript;
+        let interim = '';
+        let finalSegment = '';
+
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const item = event.results[i];
+          if (item.isFinal) {
+            finalSegment += item[0].transcript + ' ';
+          } else {
+            interim += item[0].transcript;
+          }
         }
-        setQuestion(transcript);
+
+        if (finalSegment) {
+          finalTranscriptRef.current += finalSegment;
+        }
+
+        const completeText = (finalTranscriptRef.current + interim).trim();
+        if (completeText) {
+          setQuestion(completeText);
+        }
       };
 
       recognition.onerror = (event) => {
         console.warn('Lỗi nhận diện giọng nói:', event.error);
-        setIsListening(false);
+        if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+          isListeningRef.current = false;
+          setIsListening(false);
+          alert('Không thể mở micro. Bác vui lòng cho phép quyền truy cập Micro trên trình duyệt nhé!');
+        }
       };
 
       recognition.onend = () => {
-        setIsListening(false);
+        // Nếu người dùng chưa chủ động bấm dừng (ví dụ do trình duyệt tự ngắt sau khoảng lặng), tự động kết nối lại để nghe tiếp
+        if (isListeningRef.current) {
+          try {
+            recognition.start();
+          } catch (e) {
+            isListeningRef.current = false;
+            setIsListening(false);
+          }
+        } else {
+          setIsListening(false);
+        }
       };
 
       recognitionRef.current = recognition;
       recognition.start();
     } catch (err) {
       console.error('Không thể kích hoạt micro:', err);
+      isListeningRef.current = false;
       setIsListening(false);
-      alert('Không thể mở micro. Bác vui lòng cho phép quyền truy cập Micro trên trình duyệt nhé!');
     }
   };
 
@@ -156,6 +202,16 @@ export default function AiAssistantModal({ isOpen, onClose, officialDocs = [], o
 
   const executeSendQuestion = async (userText) => {
     if (!userText || !userText.trim() || loading) return;
+
+    // Tự động dừng thu âm nếu người dùng bấm gửi
+    if (isListeningRef.current) {
+      isListeningRef.current = false;
+      if (recognitionRef.current) {
+        try { recognitionRef.current.stop(); } catch (e) {}
+      }
+      setIsListening(false);
+    }
+    finalTranscriptRef.current = '';
 
     setQuestion('');
     setMessages(prev => [...prev, { sender: 'user', text: userText }]);
