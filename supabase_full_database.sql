@@ -1,9 +1,9 @@
 -- ==============================================================================
 -- NỀN TẢNG CHUYỂN ĐỔI SỐ & HỌC TẬP CỘNG ĐỒNG (THÔN 6 XÃ DI LINH)
--- DATABASE SCHEMA TOÀN DIỆN & DỮ LIỆU THỰC TẾ TRÊN SUPABASE POSTGRESQL
+-- BẢN SỬA LỖI TỰ ĐỘNG BỔ SUNG CỘT & NẠP DỮ LIỆU CHUẨN 100% TRÊN SUPABASE
 -- ==============================================================================
 
--- 1. BẢNG PROFILES (NGƯỜI DÙNG & PHÂN QUYỀN HỆ THỐNG)
+-- 1. BẢNG PROFILES (NGƯỜI DÙNG & PHÂN QUYỀN)
 CREATE TABLE IF NOT EXISTS public.profiles (
     id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
     email TEXT UNIQUE NOT NULL,
@@ -15,6 +15,11 @@ CREATE TABLE IF NOT EXISTS public.profiles (
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Tự động bổ sung cột nếu bảng đã tồn tại từ trước
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS phone_number TEXT DEFAULT '0903.382.277';
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS role TEXT NOT NULL DEFAULT 'citizen';
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS hamlet_address TEXT DEFAULT 'Thôn 6, Xã Di Linh';
 
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 
@@ -57,23 +62,29 @@ CREATE TRIGGER on_auth_user_created
     FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
 
--- 2. BẢNG LEARNING_RESOURCES (KHO BÀI HỌC & VIDEO KỸ NĂNG SỐ)
+-- 2. BẢNG LEARNING_RESOURCES (KHO BÀI HỌC KỸ NĂNG SỐ)
 CREATE TABLE IF NOT EXISTS public.learning_resources (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     title TEXT NOT NULL,
     description TEXT,
-    type TEXT NOT NULL CHECK (type IN ('video', 'image', 'infographic', 'document', 'audio')),
-    category TEXT NOT NULL, -- 'Tôi Muốn Học', 'VNeID & Dịch vụ công', 'Sử dụng Zalo', 'An toàn số', 'Quét QR'
+    type TEXT NOT NULL,
+    category TEXT NOT NULL,
     media_url TEXT NOT NULL,
     thumbnail_url TEXT,
     source_author TEXT DEFAULT 'Tổ Công nghệ số Cộng đồng Thôn 6',
     view_count INT DEFAULT 0,
     senior_friendly BOOLEAN DEFAULT TRUE,
-    status TEXT DEFAULT 'published' CHECK (status IN ('draft', 'pending', 'published')),
+    status TEXT DEFAULT 'published',
     created_by UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+ALTER TABLE public.learning_resources ADD COLUMN IF NOT EXISTS thumbnail_url TEXT;
+ALTER TABLE public.learning_resources ADD COLUMN IF NOT EXISTS source_author TEXT DEFAULT 'Tổ Công nghệ số Cộng đồng Thôn 6';
+ALTER TABLE public.learning_resources ADD COLUMN IF NOT EXISTS view_count INT DEFAULT 0;
+ALTER TABLE public.learning_resources ADD COLUMN IF NOT EXISTS senior_friendly BOOLEAN DEFAULT TRUE;
+ALTER TABLE public.learning_resources ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'published';
 
 ALTER TABLE public.learning_resources ENABLE ROW LEVEL SECURITY;
 
@@ -86,15 +97,15 @@ CREATE POLICY "Quản lý tài nguyên học tập" ON public.learning_resources
 );
 
 
--- 3. BẢNG NEWS_ARTICLES (BẢN TIN THỜI SỰ, NÔNG NGHIỆP & CẢNH BÁO SỐ)
+-- 3. BẢNG NEWS_ARTICLES (BẢN TIN THỜI SỰ & NÔNG NGHIỆP)
 CREATE TABLE IF NOT EXISTS public.news_articles (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     title TEXT NOT NULL,
     summary TEXT NOT NULL,
     content TEXT NOT NULL,
-    category TEXT NOT NULL, -- 'Nông Nghiệp Di Linh', 'Thông Báo Xã', 'Kinh Tế Lâm Đồng', 'Cảnh Báo An Ninh', 'Chính Sách Mới'
+    category TEXT NOT NULL,
     category_color TEXT DEFAULT 'bg-blue-600',
-    scope TEXT NOT NULL DEFAULT 'dilinh' CHECK (scope IN ('dilinh', 'lamdong', 'national')),
+    scope TEXT NOT NULL DEFAULT 'dilinh',
     scope_label TEXT DEFAULT '🏛️ Xã Di Linh',
     image_url TEXT,
     source TEXT NOT NULL DEFAULT 'UBND Xã Di Linh',
@@ -107,6 +118,12 @@ CREATE TABLE IF NOT EXISTS public.news_articles (
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+ALTER TABLE public.news_articles ADD COLUMN IF NOT EXISTS category_color TEXT DEFAULT 'bg-blue-600';
+ALTER TABLE public.news_articles ADD COLUMN IF NOT EXISTS scope TEXT DEFAULT 'dilinh';
+ALTER TABLE public.news_articles ADD COLUMN IF NOT EXISTS scope_label TEXT DEFAULT '🏛️ Xã Di Linh';
+ALTER TABLE public.news_articles ADD COLUMN IF NOT EXISTS is_urgent BOOLEAN DEFAULT FALSE;
+ALTER TABLE public.news_articles ADD COLUMN IF NOT EXISTS is_new BOOLEAN DEFAULT TRUE;
 
 ALTER TABLE public.news_articles ENABLE ROW LEVEL SECURITY;
 
@@ -131,12 +148,22 @@ CREATE TABLE IF NOT EXISTS public.community_activities (
     assisted_count INT DEFAULT 0,
     results_summary TEXT,
     author_name TEXT NOT NULL DEFAULT 'Tổ CNS Cộng Đồng Thôn 6',
-    status TEXT DEFAULT 'approved' CHECK (status IN ('pending', 'approved', 'rejected')),
+    status TEXT DEFAULT 'approved',
     is_featured BOOLEAN DEFAULT FALSE,
     created_by UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- TỰ ĐỘNG BỔ SUNG CỘT ARTICLE_URL VÀ CÁC CỘT MỚI VÀO BẢNG COMMUNITY_ACTIVITIES
+ALTER TABLE public.community_activities ADD COLUMN IF NOT EXISTS article_url TEXT;
+ALTER TABLE public.community_activities ADD COLUMN IF NOT EXISTS source_name TEXT;
+ALTER TABLE public.community_activities ADD COLUMN IF NOT EXISTS is_featured BOOLEAN DEFAULT FALSE;
+ALTER TABLE public.community_activities ADD COLUMN IF NOT EXISTS participants_count INT DEFAULT 1;
+ALTER TABLE public.community_activities ADD COLUMN IF NOT EXISTS assisted_count INT DEFAULT 0;
+ALTER TABLE public.community_activities ADD COLUMN IF NOT EXISTS results_summary TEXT;
+ALTER TABLE public.community_activities ADD COLUMN IF NOT EXISTS author_name TEXT DEFAULT 'Tổ CNS Cộng Đồng Thôn 6';
+ALTER TABLE public.community_activities ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'approved';
 
 ALTER TABLE public.community_activities ENABLE ROW LEVEL SECURITY;
 
@@ -161,18 +188,21 @@ CREATE TABLE IF NOT EXISTS public.learning_models (
     media_urls TEXT[],
     author_name TEXT NOT NULL DEFAULT 'Người dân Thôn 6',
     likes_count INT DEFAULT 0,
-    status TEXT DEFAULT 'approved' CHECK (status IN ('draft', 'pending', 'approved')),
+    status TEXT DEFAULT 'approved',
     created_by UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+ALTER TABLE public.learning_models ADD COLUMN IF NOT EXISTS ai_formatted_content JSONB;
+ALTER TABLE public.learning_models ADD COLUMN IF NOT EXISTS likes_count INT DEFAULT 0;
 
 ALTER TABLE public.learning_models ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "Xem mô hình học tập" ON public.learning_models;
 CREATE POLICY "Xem mô hình học tập" ON public.learning_models FOR SELECT USING (true);
 
-DROP POLICY IF EXISTS "Đăng mô hình học tập" ON public.learning_models FOR INSERT;
+DROP POLICY IF EXISTS "Đăng mô hình học tập" ON public.learning_models;
 CREATE POLICY "Đăng mô hình học tập" ON public.learning_models FOR INSERT WITH CHECK (true);
 
 DROP POLICY IF EXISTS "Quản lý mô hình học tập" ON public.learning_models;
@@ -181,7 +211,7 @@ CREATE POLICY "Quản lý mô hình học tập" ON public.learning_models FOR A
 );
 
 
--- 6. BẢNG OFFICIAL_DOCUMENTS (VĂN BẢN PHÁP QUY & TRI THỨC AI RAG)
+-- 6. BẢNG OFFICIAL_DOCUMENTS (VĂN BẢN PHÁP QUY & RAG AI)
 CREATE TABLE IF NOT EXISTS public.official_documents (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     doc_number TEXT NOT NULL,
@@ -208,14 +238,14 @@ CREATE POLICY "Quản lý văn bản chính thống" ON public.official_document
 );
 
 
--- 7. BẢNG AGRI_MARKET_PRICES (BẢNG GIÁ NÔNG SẢN DI LINH HÀNG NGÀY)
+-- 7. BẢNG AGRI_MARKET_PRICES (BẢNG GIÁ NÔNG SẢN DI LINH)
 CREATE TABLE IF NOT EXISTS public.agri_market_prices (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
     unit TEXT NOT NULL DEFAULT 'kg',
     price_str TEXT NOT NULL,
     avg_price NUMERIC DEFAULT 0,
-    trend TEXT DEFAULT 'up' CHECK (trend IN ('up', 'down', 'stable')),
+    trend TEXT DEFAULT 'up',
     change_str TEXT,
     note TEXT,
     icon TEXT DEFAULT '☕',
@@ -234,7 +264,7 @@ CREATE POLICY "Cập nhật giá nông sản" ON public.agri_market_prices FOR A
 );
 
 
--- 8. BẢNG WEATHER_DAILY (THỜI TIẾT DI LINH & KHUYẾN CÁO NÔNG VỤ)
+-- 8. BẢNG WEATHER_DAILY (THỜI TIẾT DI LINH)
 CREATE TABLE IF NOT EXISTS public.weather_daily (
     id TEXT PRIMARY KEY DEFAULT 'current_weather',
     location TEXT DEFAULT 'Huyện Di Linh, Tỉnh Lâm Đồng',
@@ -268,12 +298,12 @@ CREATE POLICY "Cập nhật thời tiết" ON public.weather_daily FOR ALL USING
 );
 
 
--- 9. BẢNG UNANSWERED_QUESTIONS (NHẬT KÝ CÂU HỎI CHƯA BIẾT CỦA AI)
+-- 9. BẢNG UNANSWERED_QUESTIONS (NHẬT KÝ CÂU HỎI AI)
 CREATE TABLE IF NOT EXISTS public.unanswered_questions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     question TEXT NOT NULL,
     asked_at TIMESTAMPTZ DEFAULT NOW(),
-    status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'answered', 'dismissed')),
+    status TEXT DEFAULT 'pending',
     answer TEXT,
     answered_by UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
     answered_at TIMESTAMPTZ
