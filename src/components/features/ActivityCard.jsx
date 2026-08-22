@@ -1,23 +1,34 @@
 import React from 'react';
-import { Users, HeartHandshake, Award, Calendar, CheckCircle2, User } from 'lucide-react';
+import { Users, HeartHandshake, Award, Calendar, CheckCircle2, User, ExternalLink, Sparkles } from 'lucide-react';
 
 export default function ActivityCard({ activity }) {
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 shadow-xs hover:shadow-lg transition duration-300 p-5 flex flex-col justify-between">
+    <div className={`bg-white rounded-2xl border shadow-xs hover:shadow-xl transition duration-300 p-5 flex flex-col justify-between ${
+      activity.is_featured ? 'border-amber-300 ring-2 ring-amber-100' : 'border-slate-200'
+    }`}>
       <div>
         {/* HEADER & STATUS */}
         <div className="flex items-center justify-between gap-2 mb-3">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-extrabold border border-emerald-300">
-            <CheckCircle2 className="w-3.5 h-3.5" />
-            Đã Thực Hiện
-          </span>
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-extrabold border border-emerald-300">
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              Đã Thực Hiện
+            </span>
+            {activity.is_featured && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-500 text-white text-[10px] font-black uppercase shadow-xs">
+                <Sparkles className="w-3 h-3 text-yellow-200 animate-pulse" />
+                <span>Báo Chí Lan Tỏa</span>
+              </span>
+            )}
+          </div>
+          
           <span className="text-[11px] text-slate-400 font-semibold flex items-center gap-1">
             <Calendar className="w-3 h-3" />
             {new Date(activity.created_at || Date.now()).toLocaleDateString('vi-VN')}
           </span>
         </div>
 
-        <h3 className="font-extrabold text-slate-900 text-base sm:text-lg mb-2 leading-snug">
+        <h3 className="font-extrabold text-slate-900 text-base sm:text-lg mb-2 leading-snug hover:text-emerald-700 transition">
           {activity.title}
         </h3>
 
@@ -27,15 +38,30 @@ export default function ActivityCard({ activity }) {
 
         {/* MEDIA PREVIEW IF ANY */}
         {activity.media_urls && activity.media_urls.length > 0 && (
-          <div className="rounded-xl overflow-hidden mb-4 max-h-48">
+          <div className="rounded-xl overflow-hidden mb-4 max-h-52 relative group">
             <img
               src={activity.media_urls[0]}
               alt={activity.title}
-              className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               onError={(e) => {
                 e.target.src = 'https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=1000&q=80';
               }}
             />
+          </div>
+        )}
+
+        {/* NÚT MỞ ĐƯỜNG LINK BÁO LÂM ĐỒNG (NẾU CÓ) */}
+        {activity.article_url && (
+          <div className="mb-4">
+            <a
+              href={activity.article_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-red-600 via-amber-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white font-black text-xs shadow-md hover:shadow-lg transition flex items-center justify-center gap-2 cursor-pointer group"
+            >
+              <span>📰 Đọc Toàn Văn Bài Viết Trên Báo Lâm Đồng</span>
+              <ExternalLink className="w-4 h-4 text-amber-200 group-hover:translate-x-1 transition-transform" />
+            </a>
           </div>
         )}
 
@@ -67,7 +93,7 @@ export default function ActivityCard({ activity }) {
           <div className="bg-amber-50 border border-amber-200 p-3 rounded-xl text-xs text-amber-900 mb-4">
             <span className="font-extrabold flex items-center gap-1 mb-0.5">
               <Award className="w-3.5 h-3.5 text-amber-600" />
-              Kết quả đạt được:
+              Kết quả lan tỏa:
             </span>
             <p className="font-medium">{activity.results_summary}</p>
           </div>
@@ -78,10 +104,10 @@ export default function ActivityCard({ activity }) {
       <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 font-medium">
         <div className="flex items-center gap-1.5">
           <User className="w-3.5 h-3.5 text-slate-400" />
-          <span className="truncate max-w-[150px] font-bold text-slate-700">{activity.author_name}</span>
+          <span className="truncate max-w-[170px] font-bold text-slate-700">{activity.author_name}</span>
         </div>
         <span className="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md font-semibold">
-          Thôn 6 Di Linh
+          Xã Di Linh – Lâm Đồng
         </span>
       </div>
     </div>

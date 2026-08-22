@@ -22,6 +22,17 @@ export default function ResourceDetailModal({ resource, onClose }) {
     }
   };
 
+  // Hàm chuyển đổi các dạng URL Youtube (youtu.be, watch?v=) sang định dạng embed iframe chuẩn
+  const getEmbedUrl = (url) => {
+    if (!url) return '';
+    if (url.includes('youtube.com/embed/')) return url;
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2] && match[2].length === 11)
+      ? `https://www.youtube.com/embed/${match[2]}`
+      : url;
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-xs animate-fade-in">
       <div className="bg-white rounded-3xl max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl border border-slate-100 relative overflow-hidden">
@@ -53,7 +64,7 @@ export default function ResourceDetailModal({ resource, onClose }) {
             {resource.type === 'video' ? (
               resource.media_url.includes('youtube.com') || resource.media_url.includes('youtu.be') ? (
                 <iframe
-                  src={resource.media_url}
+                  src={getEmbedUrl(resource.media_url)}
                   title={resource.title}
                   className="w-full h-80 sm:h-96 rounded-2xl"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"

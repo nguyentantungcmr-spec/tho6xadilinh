@@ -16,13 +16,24 @@ export default function Sidebar({
   isOpenMobile,
   onCloseMobile
 }) {
-  // 6 THẺ MENU THEO ĐÚNG YÊU CẦU CỦA THẦY/CÔ
+  // 6 THẺ MENU THEO ĐÚNG YÊU CẦU: TIN TỨC THÔN 6 NẰM TRÊN ĐẦU
   const actionCards = [
+    {
+      id: 'news',
+      title: 'TIN TỨC',
+      icon: '📰',
+      badge: 'Di Linh • Lâm Đồng • Cả Nước',
+      color: 'from-amber-600 to-orange-600 text-white shadow-amber-500/20',
+      action: () => {
+        setActiveTab('news');
+        if (onCloseMobile) onCloseMobile();
+      }
+    },
     {
       id: 'learn',
       title: 'TÔI MUỐN HỌC',
       icon: '🎬',
-      badge: 'Video & Infographic',
+      badge: 'Video & Bình Dân Học Vụ Số',
       color: 'from-blue-600 to-indigo-600 text-white shadow-blue-500/20',
       action: () => {
         setActiveTab('all');
@@ -63,22 +74,11 @@ export default function Sidebar({
       }
     },
     {
-      id: 'skills',
-      title: 'KỸ NĂNG CỦA TÔI',
-      icon: '🪪',
-      badge: 'Hộ chiếu kỹ năng',
-      color: 'from-amber-600 to-orange-600 text-white shadow-amber-500/20',
-      action: () => {
-        onOpenMySkills();
-        if (onCloseMobile) onCloseMobile();
-      }
-    },
-    {
       id: 'spread',
       title: 'HOẠT ĐỘNG LAN TỎA',
       icon: '🌱',
       badge: 'Kết quả cộng đồng',
-      color: 'from-teal-600 to-emerald-700 text-white shadow-teal-500/20',
+      color: 'from-teal-600 to-cyan-600 text-white shadow-teal-500/20',
       action: () => {
         setActiveTab('activities');
         if (onCloseMobile) onCloseMobile();
@@ -129,7 +129,7 @@ export default function Sidebar({
           </div>
 
           {/* DANH SÁCH 6 THẺ MENU NỔI BẬT */}
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             {actionCards.map((card) => (
               <button
                 key={card.id}
@@ -137,7 +137,7 @@ export default function Sidebar({
                 className={`
                   w-full p-3.5 rounded-2xl bg-gradient-to-r ${card.color} 
                   shadow-md hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 
-                  flex items-center justify-between text-left group border border-white/20
+                  flex items-center justify-between text-left group border border-white/20 cursor-pointer
                 `}
               >
                 <div className="flex items-center gap-3">
@@ -185,11 +185,11 @@ export default function Sidebar({
         {/* HOTLINE CẦM TAY CHỈ VIỆC */}
         <div className="pt-3 border-t border-slate-100 text-center">
           <a 
-            href="tel:0912345678"
+            href="tel:0943849295"
             className="inline-flex items-center gap-1.5 text-xs font-black text-emerald-800 bg-emerald-100 hover:bg-emerald-200 px-3 py-2 rounded-xl border border-emerald-300 w-full justify-center shadow-xs transition"
           >
             <PhoneCall className="w-4 h-4 text-emerald-700 animate-pulse" />
-            <span>Hotline Cầm Tay Chỉ Việc: 0912.345.678</span>
+            <span>Hotline Cầm Tay Chỉ Việc: 0943.849.295</span>
           </a>
         </div>
 

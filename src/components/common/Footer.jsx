@@ -37,7 +37,7 @@ export default function Footer() {
             </div>
             <div className="flex items-center gap-2 text-xs text-slate-300">
               <Phone className="w-4 h-4 text-emerald-400 shrink-0" />
-              <span>Đường dây nóng hỗ trợ số: 0912.345.678 (Tổ trưởng Tổ CNS)</span>
+              <span>Đường dây nóng hỗ trợ số: 0943.849.295 (Tổ trưởng Tổ CNS)</span>
             </div>
             <div className="flex items-center gap-2 text-xs text-slate-300">
               <Sparkles className="w-4 h-4 text-amber-400 shrink-0" />

@@ -11,6 +11,7 @@ export default function Header({
   onOpenAuth, 
   onLogout,
   onOpenAiAssistant,
+  onOpenKnowledgeAdmin,
   onToggleSidebar
 }) {
   return (
@@ -71,6 +72,15 @@ export default function Header({
               <Sparkles className="w-4 h-4 animate-pulse" />
               <span className="hidden sm:inline">Hỏi Trợ Lý AI</span>
               <span className="sm:hidden">AI</span>
+            </button>
+
+            {/* BUTTON MỞ KHO DỮ LIỆU RAG (ADMIN / TỔ CNS) */}
+            <button
+              onClick={onOpenKnowledgeAdmin}
+              className="hidden md:flex items-center gap-1.5 px-3 py-2 rounded-xl bg-indigo-50 text-indigo-900 border border-indigo-200 text-xs font-black hover:bg-indigo-100 transition shadow-xs"
+              title="Quản Lý Kho Dữ Liệu Chính Thống RAG"
+            >
+              <span>📚 Kho Dữ Liệu RAG</span>
             </button>
 
             {/* ROLE SELECTOR (CHUYỂN ĐỔI VAI TRÒ THỬ NGHIỆM) */}

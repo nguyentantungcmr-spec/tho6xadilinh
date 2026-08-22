@@ -1,0 +1,9 @@
+https://github.com/
+https://github.com/nguyentantungcmr-spec/tho6xadilinh.git
+
+https://supabase.com/
+
+https://syouhbcqbmynmqecgcxd.supabase.co
+anon public: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN5b3VoYmNxYm15bm1xZWNnY3hkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYyODcyODgsImV4cCI6MjEwMTg2MzI4OH0.-2coth6EEcWxLQInczDKWLYa2_4BUbKbGr4gXiHBS_M
+
+service_role secret: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN5b3VoYmNxYm15bm1xZWNnY3hkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4NjI4NzI4OCwiZXhwIjoyMTAxODYzMjg4fQ.tjdjCEwWyR6enQqFo9ms2bFe7La2fVaRP6h0w7T6T2Q

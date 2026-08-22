@@ -48,3 +48,26 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
 }
+
+/* Hiệu ứng dòng chữ LED điện tử chạy ngang liền mạch từ giây đầu tiên */
+@keyframes ledContinuousMarquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-led-marquee {
+  display: flex !important;
+  width: max-content !important;
+  white-space: nowrap !important;
+  animation: ledContinuousMarquee 60s linear infinite !important;
+  will-change: transform;
+}
+
+.animate-led-marquee:hover,
+.led-paused {
+  animation-play-state: paused !important;
+}
