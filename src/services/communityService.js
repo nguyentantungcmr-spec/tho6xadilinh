@@ -110,6 +110,25 @@ export const createCommunityActivity = async (activityData) => {
   }
 };
 
+export const updateCommunityActivity = async (id, activityData) => {
+  try {
+    const { data, error } = await supabase
+      .from('community_activities')
+      .update({
+        ...activityData,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', id)
+      .select();
+
+    if (error) throw error;
+    return { data: data[0], error: null };
+  } catch (error) {
+    console.error('Error updating activity:', error);
+    return { data: null, error: error.message };
+  }
+};
+
 export const deleteCommunityActivity = async (id) => {
   try {
     const { error } = await supabase

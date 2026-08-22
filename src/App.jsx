@@ -1136,13 +1136,14 @@ export default function App() {
         onClose={() => setIsKnowledgeAdminOpen(false)}
       />
 
-      {/* TRUNG TÂM QUẢN TRỊ ADMIN (CẤP TÀI KHOẢN & XÓA BÀI ĐĂNG) */}
+      {/* TRUNG TÂM QUẢN TRỊ ADMIN CMS PORTAL */}
       <AdminControlModal
         isOpen={isAdminControlOpen}
         onClose={() => setIsAdminControlOpen(false)}
         activities={activities}
         onDeleteActivity={handleDeleteActivity}
         onRefreshActivities={fetchInitialData}
+        onRefreshAllData={fetchInitialData}
       />
 
       <NewsDetailModal

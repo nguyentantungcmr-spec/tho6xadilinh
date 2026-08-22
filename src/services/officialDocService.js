@@ -45,6 +45,63 @@ export const createOfficialDocument = async (docData) => {
   }
 };
 
+export const updateOfficialDocument = async (id, docData) => {
+  try {
+    const { data, error } = await supabase
+      .from('official_documents')
+      .update({
+        ...docData,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', id)
+      .select();
+
+    if (error) throw error;
+    return { data: data[0], error: null };
+  } catch (error) {
+    console.error('Error updating official document:', error);
+    return { data: null, error: error.message };
+  }
+};
+
+export const deleteOfficialDocument = async (id) => {
+  try {
+    const { error } = await supabase
+      .from('official_documents')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+    return { success: true, error: null };
+  } catch (error) {
+    console.error('Error deleting official document:', error);
+    return { success: false, error: error.message };
+  }
+};
+
+export const answerUnansweredQuestion = async (id, answerText) => {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    const { data, error } = await supabase
+      .from('unanswered_questions')
+      .update({
+        status: 'answered',
+        answer: answerText,
+        answered_by: user ? user.id : null,
+        answered_at: new Date().toISOString()
+      })
+      .eq('id', id)
+      .select();
+
+    if (error) throw error;
+    return { data: data[0], error: null };
+  } catch (error) {
+    console.error('Error answering question:', error);
+    return { data: null, error: error.message };
+  }
+};
+
+
 // MOCK KHO CÂU HỎI AI CHƯA TRẢ LỜI ĐƯỢC
 let MOCK_UNANSWERED_QUESTIONS = [
   {

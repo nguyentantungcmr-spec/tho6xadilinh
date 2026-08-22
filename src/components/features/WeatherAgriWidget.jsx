@@ -1,18 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   CloudSun, Droplets, Wind, TrendingUp, TrendingDown, Minus, 
   Sparkles, Calendar, ArrowUpRight, AlertCircle, Info, RefreshCw 
 } from 'lucide-react';
-import { getDailyWeatherAgriData } from '../../services/weatherAgriService';
+import { getDailyWeatherAgriData, fetchLiveWeatherAgriData } from '../../services/weatherAgriService';
 
 export default function WeatherAgriWidget() {
   const [data, setData] = useState(() => getDailyWeatherAgriData());
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const handleRefresh = () => {
+  useEffect(() => {
+    loadLive();
+  }, []);
+
+  const loadLive = async () => {
+    const live = await fetchLiveWeatherAgriData();
+    if (live) setData(live);
+  };
+
+  const handleRefresh = async () => {
     setIsRefreshing(true);
+    const live = await fetchLiveWeatherAgriData();
+    if (live) setData(live);
     setTimeout(() => {
-      setData(getDailyWeatherAgriData());
       setIsRefreshing(false);
     }, 400);
   };

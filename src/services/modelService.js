@@ -71,3 +71,38 @@ export const createLearningModel = async (modelData) => {
     return { data: null, error: error.message };
   }
 };
+
+export const updateLearningModel = async (id, modelData) => {
+  try {
+    const { data, error } = await supabase
+      .from('learning_models')
+      .update({
+        ...modelData,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', id)
+      .select();
+
+    if (error) throw error;
+    return { data: data[0], error: null };
+  } catch (error) {
+    console.error('Error updating learning model:', error);
+    return { data: null, error: error.message };
+  }
+};
+
+export const deleteLearningModel = async (id) => {
+  try {
+    const { error } = await supabase
+      .from('learning_models')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+    return { success: true, error: null };
+  } catch (error) {
+    console.error('Error deleting learning model:', error);
+    return { success: false, error: error.message };
+  }
+};
+
