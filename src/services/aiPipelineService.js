@@ -118,13 +118,13 @@ export const generateGroundedAnswer = (question, intent, searchResult, confidenc
     };
   }
 
-  // TRẠNG THÁI KHÔNG TÌM THẤY NGUỒN CHÍNH THỐNG ĐỦ TIN CẬY (NO_RELIABLE_SOURCE) -> AI KHÔNG TỰ BỊA NGUỒN
+  // TRẠNG THÁI KHÔNG TÌM THẤY NGUỒN CHÍNH THỐNG ĐỦ TIN CẬY (THEO NGUYÊN TẮC KB-T6-20/2026) -> AI KHÔNG TỰ BỊA NGUỒN
   return {
     text: `🤖 **Trợ lý AI Thôn 6 thông báo:**\n\n` +
-          `Dạ thưa Bác/anh/chị, câu hỏi "**${question}**" hiện chưa có văn bản chỉ đạo chi tiết trong CSDL trực tiếp.\n\n` +
-          `✅ **EM ĐÃ TỰ ĐỘNG GHI NHẬN & CHUYỂN CÂU HỎI NÀY ĐẾN TỔ CÔNG NGHỆ SỐ CỘNG ĐỒNG THÔN 6!**\n` +
-          `Ban điều hành Tổ CNS sẽ đối chiếu chỉ đạo từ UBND Di Linh và cập nhật tài liệu chính thức cho bà con sớm nhất ạ.\n\n` +
-          `🌐 Bà con có thể tự tra cứu tại Cổng TTĐT Di Linh [dilinh.lamdong.gov.vn](${sourceUrl}) hoặc gọi Hotline: **0903.382.277**.`,
+          `Dạ thưa Bác/anh/chị, về câu hỏi: "**${question}**"\n\n` +
+          `📌 **Hiện hệ thống cơ sở dữ liệu Thôn 6 chưa có đủ thông tin chính thức để trả lời chính xác câu hỏi này.** Bác/anh/chị vui lòng kiểm tra thông báo chính thức hoặc liên hệ cơ quan có thẩm quyền ạ.\n\n` +
+          `✅ **Em đã tự động ghi nhận câu hỏi này và chuyển đến Ban điều hành Tổ Công nghệ số Thôn 6 để đối chiếu chỉ đạo từ UBND Xã Di Linh và cập nhật tài liệu sớm nhất cho bà con!**\n\n` +
+          `🌐 Tra cứu Cổng TTĐT Di Linh: [dilinh.lamdong.gov.vn](${sourceUrl}) hoặc liên hệ Hotline Tổ CNS: **0903.382.277**.`,
     isGrounded: false,
     doc: null
   };
