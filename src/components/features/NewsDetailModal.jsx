@@ -139,19 +139,32 @@ export default function NewsDetailModal({ news, onClose }) {
         </div>
 
         {/* CHÂN MODAL */}
-        <div className="p-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between shrink-0">
+        <div className="p-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between gap-2 shrink-0">
           <span className="text-xs text-slate-500 font-bold">
-            Tác giả biên tập: <strong className="text-slate-800">{news.author}</strong>
+            Tác giả / Nguồn: <strong className="text-slate-800">{news.source || news.author}</strong>
           </span>
-          <button
-            onClick={() => {
-              if ('speechSynthesis' in window) window.speechSynthesis.cancel();
-              onClose();
-            }}
-            className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-black text-xs transition cursor-pointer"
-          >
-            Đóng Lại
-          </button>
+          <div className="flex items-center gap-2">
+            {news.article_url && (
+              <a
+                href={news.article_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-black text-xs transition flex items-center gap-1.5 shadow-sm"
+              >
+                <span>Xem tin gốc</span>
+                <span className="text-xs">↗</span>
+              </a>
+            )}
+            <button
+              onClick={() => {
+                if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+                onClose();
+              }}
+              className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-black text-xs transition cursor-pointer"
+            >
+              Đóng Lại
+            </button>
+          </div>
         </div>
 
       </div>

@@ -809,6 +809,38 @@ export default function AdminControlModal({
           {/* TAB 4: BẢN TIN THỜI SỰ */}
           {activeTab === 'news' && (
             <div className="space-y-6">
+              {/* THANH ĐỒNG BỘ TIN TỨC TRỰC TUYẾN TỰ ĐỘNG */}
+              <div className="bg-gradient-to-r from-red-600 via-amber-600 to-orange-600 text-white p-4 rounded-2xl shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div className="space-y-0.5">
+                  <h4 className="font-black text-xs sm:text-sm uppercase flex items-center gap-1.5">
+                    <span>⚡ Thu Thập Tin Tức Trực Tuyến 24h Tự Động</span>
+                  </h4>
+                  <p className="text-[11px] text-amber-100">
+                    Tự động lấy tin thời sự 24h mới nhất từ <strong>VietNamNet (vietnamnet.vn/thoi-su)</strong>, <strong>Báo Lâm Đồng</strong> và <strong>Cổng TTĐT Xã Di Linh</strong> nạp vào Database.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    setLoading(true);
+                    const { syncLiveNewsToDatabase } = await import('../../services/newsService');
+                    const res = await syncLiveNewsToDatabase();
+                    setLoading(false);
+                    if (res.success) {
+                      showMsg('success', `Đã đồng bộ thành công các bản tin thời sự mới nhất vào CSDL Supabase!`);
+                      loadAllAdminData();
+                      if (onRefreshAllData) onRefreshAllData();
+                    } else {
+                      showMsg('error', res.error || 'Lỗi đồng bộ tin tức');
+                    }
+                  }}
+                  className="px-4 py-2 bg-white text-slate-900 font-black text-xs rounded-xl shadow hover:bg-amber-100 transition flex items-center gap-1.5 cursor-pointer shrink-0"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
+                  <span>Quét & Nạp Tin Mới Ngay</span>
+                </button>
+              </div>
+
               {/* FORM THÊM / SỬA BẢN TIN */}
               <div className="bg-white p-5 rounded-2xl border-2 border-amber-200 shadow-xs space-y-4">
                 <h3 className="font-black text-sm text-slate-900 uppercase flex items-center gap-2">
