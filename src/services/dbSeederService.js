@@ -385,9 +385,16 @@ export async function seedAllDatabaseTables(onProgress) {
     else results.errors.push(`Hoạt động: ${errAct.message}`);
 
     if (onProgress) onProgress('Đang nạp văn bản chính thống & tri thức RAG...');
-    const { error: errDoc } = await supabase
+    let { error: errDoc } = await supabase
       .from('official_documents')
       .insert(REAL_INITIAL_DATA.official_documents);
+    
+    if (errDoc && errDoc.message && errDoc.message.includes('category')) {
+      const cleanDocs = REAL_INITIAL_DATA.official_documents.map(({ category, ...rest }) => rest);
+      const retry = await supabase.from('official_documents').insert(cleanDocs);
+      errDoc = retry.error;
+    }
+
     if (!errDoc) results.docs = true;
     else results.errors.push(`Văn bản: ${errDoc.message}`);
 

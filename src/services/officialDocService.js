@@ -469,10 +469,21 @@ export const createOfficialDocument = async (docData) => {
       created_by: user ? user.id : null
     };
 
-    const { data, error } = await supabase
+    let { data, error } = await supabase
       .from('official_documents')
       .insert([payload])
       .select();
+
+    // Nếu CSDL chưa thêm cột category, tự động bỏ trường category để lưu thành công
+    if (error && error.message && error.message.includes('category')) {
+      const { category, ...cleanPayload } = payload;
+      const retry = await supabase
+        .from('official_documents')
+        .insert([cleanPayload])
+        .select();
+      data = retry.data;
+      error = retry.error;
+    }
 
     if (error) throw error;
     return { data: data[0], error: null };
@@ -484,7 +495,7 @@ export const createOfficialDocument = async (docData) => {
 
 export const updateOfficialDocument = async (id, docData) => {
   try {
-    const { data, error } = await supabase
+    let { data, error } = await supabase
       .from('official_documents')
       .update({
         ...docData,
@@ -492,6 +503,20 @@ export const updateOfficialDocument = async (id, docData) => {
       })
       .eq('id', id)
       .select();
+
+    if (error && error.message && error.message.includes('category')) {
+      const { category, ...cleanData } = docData;
+      const retry = await supabase
+        .from('official_documents')
+        .update({
+          ...cleanData,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', id)
+        .select();
+      data = retry.data;
+      error = retry.error;
+    }
 
     if (error) throw error;
     return { data: data[0], error: null };
@@ -523,9 +548,19 @@ export const seed12PillarsKnowledgeToDatabase = async () => {
   try {
     let inserted = 0;
     for (const doc of OFFICIAL_20_PILLARS_KNOWLEDGE) {
-      const { error } = await supabase
+      let { error } = await supabase
         .from('official_documents')
         .upsert(doc, { onConflict: 'doc_number' });
+
+      // Fallback nếu CSDL chưa có cột category
+      if (error && error.message && error.message.includes('category')) {
+        const { category, ...cleanDoc } = doc;
+        const retry = await supabase
+          .from('official_documents')
+          .upsert(cleanDoc, { onConflict: 'doc_number' });
+        error = retry.error;
+      }
+
       if (!error) inserted++;
     }
     return { success: true, count: inserted };
