@@ -1,5 +1,5 @@
 import { supabase } from './supabaseClient';
-import { OFFICIAL_12_PILLARS_KNOWLEDGE } from './officialDocService';
+import { OFFICIAL_20_PILLARS_KNOWLEDGE } from './officialDocService';
 
 /**
  * SERVICE TỰ ĐỘNG KHỞI TẠO & ĐỒNG BỘ DỮ LIỆU THỰC TẾ VÀO SUPABASE
@@ -330,8 +330,8 @@ Tuyệt đối ghi nhớ nguyên tắc "4 KHÔNG - 2 PHẢI":
     }
   ],
 
-  // 6. 12 TRỤ CỘT TRI THỨC CHÍNH THỐNG (BỘ NÃO TRỢ LÝ SỐ THÔN 6)
-  official_documents: OFFICIAL_12_PILLARS_KNOWLEDGE
+  // 6. 20 MỤC TRI THỨC CHÍNH THỐNG (BỘ NÃO TRỢ LÝ SỐ THÔN 6)
+  official_documents: OFFICIAL_20_PILLARS_KNOWLEDGE
 };
 
 /**

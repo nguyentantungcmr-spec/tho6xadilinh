@@ -1033,29 +1033,29 @@ export default function AdminControlModal({
             </div>
           )}
 
-          {/* TAB 7: VĂN BẢN & TRI THỨC AI 12 TRỤ CỘT (BỘ NÃO TRỢ LÝ SỐ) */}
+          {/* TAB 7: VĂN BẢN & TRI THỨC AI 20 MỤC (BỘ NÃO TRỢ LÝ SỐ THÔN 6) */}
           {activeTab === 'docs' && (
             <div className="space-y-6">
-              {/* BANNER 12 TRỤ CỘT TRI THỨC */}
+              {/* BANNER 20 MỤC TRI THỨC */}
               <div className="bg-gradient-to-r from-indigo-900 via-purple-900 to-slate-900 text-white p-5 rounded-3xl shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border border-indigo-500/30">
                 <div className="space-y-1">
                   <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-400 text-slate-950 text-[10px] font-black uppercase">
-                    🧠 BỘ NÃO TRỢ LÝ SỐ THÔN 6 XÃ DI LINH
+                    🧠 BỘ NÃO TRỢ LÝ SỐ THÔN 6 XÃ DI LINH (KB-T6-01 ĐẾN KB-T6-20)
                   </div>
-                  <h3 className="text-base sm:text-lg font-black">Kho Tri Thức Chuẩn Hóa 12 Trụ Cột (RAG Grounding)</h3>
+                  <h3 className="text-base sm:text-lg font-black">Kho Tri Thức Chuẩn Hóa 20 Mục Huấn Luyện AI (RAG Grounding)</h3>
                   <p className="text-xs text-indigo-200 max-w-2xl leading-relaxed">
-                    Bao gồm 12 chủ đề thiết yếu: VNeID • Dịch vụ công • Phòng chống lừa đảo • Chuyển đổi số • Y tế BHYT • Giáo dục • Môi trường • An ninh PCCC • Chính sách người dân • Nông nghiệp Di Linh • Phòng chống thiên tai • Hotline liên hệ địa phương. Trợ lý AI sẽ trích dẫn chuẩn xác số hiệu văn bản và không bao giờ bịa thông tin.
+                    Bao gồm 20 chủ đề thiết yếu: VNeID • Phòng chống lừa đảo • Hỗ trợ người cao tuổi • Dịch vụ công • Quét mã QR • Thanh toán điện tử • Bảo vệ dữ liệu • Nhận biết tin giả • Phản ánh kiến nghị • Môi trường • An toàn giao thông • PCCC gia đình • Phòng chống thiên tai • Giá nông sản • Nông nghiệp số • Hoạt động cộng đồng • Bản tin thông báo • Y tế sức khỏe • Học tập số • Quy tắc hoạt động AI.
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={async () => {
                     setLoading(true);
-                    const { seed12PillarsKnowledgeToDatabase } = await import('../../services/officialDocService');
-                    const res = await seed12PillarsKnowledgeToDatabase();
+                    const { seed20PillarsKnowledgeToDatabase } = await import('../../services/officialDocService');
+                    const res = await seed20PillarsKnowledgeToDatabase();
                     setLoading(false);
                     if (res.success) {
-                      showMsg('success', 'Đã nạp và đồng bộ đủ 12 Trụ cột Tri thức chuẩn vào CSDL RAG Supabase!');
+                      showMsg('success', 'Đã nạp và đồng bộ đủ 20 Mục Tri thức chuẩn (KB-T6-01 -> KB-T6-20) vào CSDL Supabase!');
                       loadAllAdminData();
                       if (onRefreshAllData) onRefreshAllData();
                     } else {
@@ -1065,28 +1065,36 @@ export default function AdminControlModal({
                   className="px-5 py-2.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs rounded-2xl shadow-md transition flex items-center gap-2 cursor-pointer shrink-0"
                 >
                   <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-                  <span>⚡ Nạp Đủ 12 Trụ Cột Tri Thức</span>
+                  <span>⚡ Nạp Đủ 20 Mục Tri Thức Chuẩn</span>
                 </button>
               </div>
 
-              {/* BỘ LỌC 12 CHỦ ĐỀ TRI THỨC */}
+              {/* BỘ LỌC 20 CHỦ ĐỀ TRI THỨC */}
               <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs space-y-2.5">
-                <div className="text-xs font-bold text-slate-700">Lọc theo chủ đề tri thức:</div>
+                <div className="text-xs font-bold text-slate-700">Lọc theo chủ đề tri thức ({docsList.length} văn bản):</div>
                 <div className="flex items-center gap-1.5 flex-wrap">
                   {[
-                    { id: 'all', label: '🌟 Tất Cả (12)' },
-                    { id: 'VNeID & Định danh điện tử', label: '🪪 VNeID' },
-                    { id: 'Dịch vụ công trực tuyến', label: '🏛️ Dịch Vụ Công' },
-                    { id: 'Phòng chống lừa đảo mạng', label: '🚨 Chống Lừa Đảo' },
-                    { id: 'Chuyển đổi số cộng đồng', label: '💻 Chuyển Đổi Số' },
-                    { id: 'Y tế & BHYT số', label: '🏥 Y Tế & BHYT' },
-                    { id: 'Giáo dục & Tuyển sinh số', label: '🎓 Giáo Dục' },
-                    { id: 'Môi trường & Rác thải', label: '🌳 Môi Trường' },
-                    { id: 'An ninh trật tự & PCCC', label: '🛡️ An Ninh & PCCC' },
-                    { id: 'Chính sách người dân & An sinh', label: '📜 An Sinh Xã Hội' },
-                    { id: 'Nông nghiệp & Nông sản Di Linh', label: '☕ Nông Nghiệp' },
-                    { id: 'Phòng chống thiên tai & Bão lũ', label: '⛈️ Thiên Tai' },
-                    { id: 'Thông tin liên hệ địa phương', label: '📞 Đường Dây Nóng' }
+                    { id: 'all', label: '🌟 Tất Cả (20)' },
+                    { id: 'VNeID & Định danh điện tử', label: '🪪 01. VNeID' },
+                    { id: 'Phòng chống lừa đảo trực tuyến', label: '🚨 02. Chống Lừa Đảo' },
+                    { id: 'Hỗ trợ người cao tuổi', label: '👵 03. Người Cao Tuổi' },
+                    { id: 'Dịch vụ công trực tuyến', label: '🏛️ 04. Dịch Vụ Công' },
+                    { id: 'Quét mã QR an toàn', label: '📱 05. Mã QR' },
+                    { id: 'Thanh toán không dùng tiền mặt', label: '💳 06. Thanh Toán Số' },
+                    { id: 'Bảo vệ thông tin cá nhân', label: '🔒 07. Bảo Vệ Dữ Liệu' },
+                    { id: 'Nhận biết tin giả & Tin xấu độc', label: '📰 08. Nhận Biết Tin Giả' },
+                    { id: 'Phản ánh kiến nghị của người dân', label: '📝 09. Phản Ánh Kiến Nghị' },
+                    { id: 'Vệ sinh môi trường', label: '🌳 10. Môi Trường' },
+                    { id: 'An toàn giao thông', label: '🚦 11. An Toàn Giao Thông' },
+                    { id: 'Phòng cháy chữa cháy gia đình', label: '🚒 12. PCCC Gia Đình' },
+                    { id: 'Phòng chống thiên tai & Thời tiết nguy hiểm', label: '⛈️ 13. Phòng Chống Thiên Tai' },
+                    { id: 'Thông tin giá nông sản', label: '☕ 14. Giá Nông Sản' },
+                    { id: 'Kiến thức nông nghiệp số', label: '🌱 15. Nông Nghiệp Số' },
+                    { id: 'Hoạt động cộng đồng Thôn 6', label: '🤝 16. Hoạt Động Thôn 6' },
+                    { id: 'Thông báo & Bản tin Thôn 6', label: '📢 17. Thông Báo & Bản Tin' },
+                    { id: 'Chăm sóc sức khỏe & Y tế', label: '🏥 18. Y Tế & Sức Khỏe' },
+                    { id: 'Hỗ trợ học tập & Kỹ năng số', label: '🎓 19. Kỹ Năng Số' },
+                    { id: 'Quy tắc hoạt động của Trợ lý AI Thôn 6', label: '⚖️ 20. Quy Tắc AI' }
                   ].map(cat => (
                     <button
                       key={cat.id}
@@ -1116,7 +1124,7 @@ export default function AdminControlModal({
                     <input
                       type="text"
                       required
-                      placeholder="06/QĐ-TTg hoặc 24/KH-UBND"
+                      placeholder="KB-T6-01/2026 hoặc 24/KH-UBND"
                       value={docForm.doc_number}
                       onChange={e => setDocForm({ ...docForm, doc_number: e.target.value })}
                       className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-medium"
@@ -1127,31 +1135,39 @@ export default function AdminControlModal({
                     <input
                       type="text"
                       required
-                      placeholder="UBND Xã Di Linh / Công an Xã Di Linh"
+                      placeholder="Tổ Công nghệ số cộng đồng Thôn 6 – Xã Di Linh"
                       value={docForm.issuing_body}
                       onChange={e => setDocForm({ ...docForm, issuing_body: e.target.value })}
                       className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-medium"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">Chủ đề tri thức (1 trong 12 Trụ Cột) *</label>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Chủ đề tri thức (1 trong 20 Mục) *</label>
                     <select
                       value={docForm.category || 'VNeID & Định danh điện tử'}
                       onChange={e => setDocForm({ ...docForm, category: e.target.value })}
                       className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-bold bg-slate-50"
                     >
-                      <option value="VNeID & Định danh điện tử">🪪 1. VNeID & Định danh điện tử</option>
-                      <option value="Dịch vụ công trực tuyến">🏛️ 2. Dịch vụ công trực tuyến</option>
-                      <option value="Phòng chống lừa đảo mạng">🚨 3. Phòng chống lừa đảo mạng</option>
-                      <option value="Chuyển đổi số cộng đồng">💻 4. Chuyển đổi số cộng đồng</option>
-                      <option value="Y tế & BHYT số">🏥 5. Y tế & BHYT số</option>
-                      <option value="Giáo dục & Tuyển sinh số">🎓 6. Giáo dục & Tuyển sinh số</option>
-                      <option value="Môi trường & Rác thải">🌳 7. Môi trường & Rác thải</option>
-                      <option value="An ninh trật tự & PCCC">🛡️ 8. An ninh trật tự & PCCC</option>
-                      <option value="Chính sách người dân & An sinh">📜 9. Chính sách người dân & An sinh</option>
-                      <option value="Nông nghiệp & Nông sản Di Linh">☕ 10. Nông nghiệp & Nông sản Di Linh</option>
-                      <option value="Phòng chống thiên tai & Bão lũ">⛈️ 11. Phòng chống thiên tai & Bão lũ</option>
-                      <option value="Thông tin liên hệ địa phương">📞 12. Thông tin liên hệ địa phương</option>
+                      <option value="VNeID & Định danh điện tử">🪪 01. VNeID & Định danh điện tử</option>
+                      <option value="Phòng chống lừa đảo trực tuyến">🚨 02. Phòng chống lừa đảo trực tuyến</option>
+                      <option value="Hỗ trợ người cao tuổi">👵 03. Hỗ trợ người cao tuổi</option>
+                      <option value="Dịch vụ công trực tuyến">🏛️ 04. Dịch vụ công trực tuyến</option>
+                      <option value="Quét mã QR an toàn">📱 05. Quét mã QR an toàn</option>
+                      <option value="Thanh toán không dùng tiền mặt">💳 06. Thanh toán không dùng tiền mặt</option>
+                      <option value="Bảo vệ thông tin cá nhân">🔒 07. Bảo vệ thông tin cá nhân</option>
+                      <option value="Nhận biết tin giả & Tin xấu độc">📰 08. Nhận biết tin giả & Tin xấu độc</option>
+                      <option value="Phản ánh kiến nghị của người dân">📝 09. Phản ánh kiến nghị của người dân</option>
+                      <option value="Vệ sinh môi trường">🌳 10. Vệ sinh môi trường</option>
+                      <option value="An toàn giao thông">🚦 11. An toàn giao thông</option>
+                      <option value="Phòng cháy chữa cháy gia đình">🚒 12. Phòng cháy chữa cháy gia đình</option>
+                      <option value="Phòng chống thiên tai & Thời tiết nguy hiểm">⛈️ 13. Phòng chống thiên tai & Thời tiết</option>
+                      <option value="Thông tin giá nông sản">☕ 14. Thông tin giá nông sản</option>
+                      <option value="Kiến thức nông nghiệp số">🌱 15. Kiến thức nông nghiệp số</option>
+                      <option value="Hoạt động cộng đồng Thôn 6">🤝 16. Hoạt động cộng đồng Thôn 6</option>
+                      <option value="Thông báo & Bản tin Thôn 6">📢 17. Thông báo & Bản tin Thôn 6</option>
+                      <option value="Chăm sóc sức khỏe & Y tế">🏥 18. Chăm sóc sức khỏe & Y tế</option>
+                      <option value="Hỗ trợ học tập & Kỹ năng số">🎓 19. Hỗ trợ học tập & Kỹ năng số</option>
+                      <option value="Quy tắc hoạt động của Trợ lý AI Thôn 6">⚖️ 20. Quy tắc hoạt động của Trợ lý AI</option>
                     </select>
                   </div>
                   <div className="sm:col-span-3">
