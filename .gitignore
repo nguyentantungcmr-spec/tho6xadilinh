@@ -20,6 +20,7 @@ yarn-error.log*
 .env.development.local
 .env.test.local
 .env.production.local
+tenduan.txt
 
 # IDE & System temporary files
 .vscode
@@ -32,5 +33,5 @@ Thumbs.db
 *.sln
 *.sw?
 
-# Temporary media files
-*.png
+# Temporary media files in root
+/luồng-*.png

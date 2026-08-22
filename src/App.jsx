@@ -544,6 +544,10 @@ export default function App() {
                     src="/qr_zalo_thon6.png" 
                     alt="Mã QR Zalo Cộng Đồng Thôn 6 Xã Di Linh" 
                     className="w-full h-full object-contain"
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https://zalo.me/0943849295';
+                    }}
                   />
                   <div className="absolute inset-0 bg-blue-600/15 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
                     <span className="text-[10px] font-black bg-blue-600 text-white px-1.5 py-0.5 rounded shadow">Xem to</span>
@@ -1157,6 +1161,10 @@ export default function App() {
                 src="/qr_zalo_thon6.png" 
                 alt="Mã QR Zalo Thôn 6 Xã Di Linh" 
                 className="w-56 h-56 object-contain rounded-xl shadow-sm"
+                onError={(e) => {
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https://zalo.me/0943849295';
+                }}
               />
             </div>
 
