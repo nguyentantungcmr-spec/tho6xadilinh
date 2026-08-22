@@ -101,18 +101,18 @@ export const calculateConfidence = (searchResult) => {
 export const generateGroundedAnswer = (question, intent, searchResult, confidence) => {
   const sourceUrl = 'https://dilinh.lamdong.gov.vn/';
 
-  if (searchResult.status === 'SUCCESS' && confidence >= 0.35 && searchResult.matchedDocs.length > 0) {
+  if (searchResult.status === 'SUCCESS' && confidence >= 0.25 && searchResult.matchedDocs.length > 0) {
     const topDoc = searchResult.matchedDocs[0];
+    const docContent = topDoc.fullContent || topDoc.content;
     return {
       text: `🤖 **Trợ lý AI Thôn 6 giải đáp:**\n\n` +
-            `Dạ thưa Bác/anh/chị, về câu hỏi: "**${question}**", em xin hướng dẫn chi tiết như sau ạ:\n\n` +
-            `📋 **Nội dung hướng dẫn chi tiết:**\n` +
-            `${topDoc.content}\n\n` +
+            `Dạ thưa Bác/anh/chị, về câu hỏi: "**${question}**", em xin hướng dẫn chi tiết theo tài liệu chính thức:\n\n` +
+            `${docContent}\n\n` +
             `🏛️ **Cơ sở văn bản chính thống:**\n` +
-            `- **Văn bản:** ${topDoc.title} (Số hiệu: ${topDoc.documentNumber || '15/UBND'})\n` +
-            `- **Cơ quan ban hành:** ${topDoc.agency || 'UBND Huyện Di Linh'}\n` +
+            `- **Văn bản:** ${topDoc.title} (Số hiệu: **${topDoc.documentNumber || 'KB-T6-01/2026'}**)\n` +
+            `- **Cơ quan ban hành:** ${topDoc.agency || 'Tổ Công nghệ số cộng đồng Thôn 6 – Xã Di Linh'}\n` +
             `- **Nguồn đối chiếu:** [dilinh.lamdong.gov.vn](${topDoc.sourceUrl || sourceUrl})\n\n` +
-            `👉 *Bác/anh/chị có thể bấm các **Nút chức năng màu xanh/đỏ** bên dưới để chuyển nhanh tới mục bài học video hoặc yêu cầu tình nguyện viên đến tận nhà hỗ trợ ạ!*`,
+            `👉 *Bác/anh/chị có thể bấm các **Nút chức năng màu xanh/đỏ** bên dưới để chuyển nhanh tới bài học video hoặc gọi Hotline Tổ CNS **0903.382.277** để được hỗ trợ tận nhà ạ!*`,
       isGrounded: true,
       doc: topDoc
     };
