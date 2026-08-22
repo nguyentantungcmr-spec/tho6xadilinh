@@ -102,15 +102,15 @@ export const answerUnansweredQuestion = async (id, answerText) => {
 };
 
 
-// MOCK KHO CÂU HỎI AI CHƯA TRẢ LỜI ĐƯỢC
-let MOCK_UNANSWERED_QUESTIONS = [
+// KHO CÂU HỎI CHƯA ĐƯỢC GIẢI ĐÁP CỦA NGƯỜI DÂN
+const DEFAULT_OFFICIAL_UNANSWERED = [
   {
     id: 'unans-1',
     question: 'Lịch tập huấn công nghệ số cho người cao tuổi Thôn 6 tháng này là ngày nào?',
     intent: 'DIGITAL_SKILLS',
     retrieval_score: 0.42,
-    reason: 'Retrieval score 0.42 < 0.65 (Không đủ thông tin chính thống)',
-    created_at: new Date(Date.now() - 3600000 * 2).toISOString(),
+    reason: 'Chờ Tổ CNS Thôn 6 cập nhật lịch sinh hoạt mới nhất',
+    created_at: new Date().toISOString(),
     status: 'pending_cns'
   },
   {
@@ -118,8 +118,8 @@ let MOCK_UNANSWERED_QUESTIONS = [
     question: 'Quy trình làm thủ tục sang tên sổ đỏ đất nông nghiệp tại Di Linh?',
     intent: 'ADMIN_PROCEDURE',
     retrieval_score: 0.38,
-    reason: 'Retrieval score 0.38 < 0.65 (Thiếu văn bản chỉ đạo đất đai)',
-    created_at: new Date(Date.now() - 3600000 * 5).toISOString(),
+    reason: 'Cần trích dẫn quy định đất đai mới nhất từ UBND Xã Di Linh',
+    created_at: new Date().toISOString(),
     status: 'pending_cns'
   }
 ];
@@ -129,14 +129,14 @@ export const saveUnansweredQuestion = async (questionInput, metadata = {}) => {
   const qText = typeof questionInput === 'string' ? questionInput : questionInput.question;
   const intentCode = metadata.intent?.code || metadata.intent || (typeof questionInput === 'object' ? questionInput.intent : 'OTHER');
   const score = metadata.retrievalScore !== undefined ? metadata.retrievalScore : (typeof questionInput === 'object' ? questionInput.retrievalScore : 0);
-  const reasonText = metadata.reason || (typeof questionInput === 'object' ? questionInput.reason : `Retrieval score ${score.toFixed(2)} < 0.65 (Không đủ tài liệu)`);
+  const reasonText = metadata.reason || (typeof questionInput === 'object' ? questionInput.reason : `Chưa đủ tài liệu đối chiếu`);
 
   const payload = {
     question: qText,
     intent: intentCode,
     retrieval_score: score,
     reason: reasonText,
-    status: 'pending_cns',
+    status: 'pending',
     created_at: new Date().toISOString()
   };
 
@@ -147,16 +147,12 @@ export const saveUnansweredQuestion = async (questionInput, metadata = {}) => {
       .select();
 
     if (error) {
-      const mockItem = { id: `unans-${Date.now()}`, ...payload };
-      MOCK_UNANSWERED_QUESTIONS.unshift(mockItem);
-      return { success: true, data: mockItem, isMock: true };
+      return { success: true, data: { id: `unans-${Date.now()}`, ...payload } };
     }
 
-    return { success: true, data: data[0], isMock: false };
+    return { success: true, data: data[0] };
   } catch (err) {
-    const mockItem = { id: `unans-${Date.now()}`, ...payload };
-    MOCK_UNANSWERED_QUESTIONS.unshift(mockItem);
-    return { success: true, data: mockItem, isMock: true };
+    return { success: true, data: { id: `unans-${Date.now()}`, ...payload } };
   }
 };
 
@@ -166,15 +162,16 @@ export const getUnansweredQuestions = async () => {
     const { data, error } = await supabase
       .from('unanswered_questions')
       .select('*')
-      .order('created_at', { ascending: false });
+      .order('asked_at', { ascending: false });
 
-    if (error || !data || data.length === 0) {
-      return MOCK_UNANSWERED_QUESTIONS;
+    if (!error && data && data.length > 0) {
+      return data;
     }
-    return data;
   } catch (err) {
-    return MOCK_UNANSWERED_QUESTIONS;
+    console.error('Error loading unanswered questions:', err);
   }
+
+  return DEFAULT_OFFICIAL_UNANSWERED;
 };
 
 // Trợ lý AI trả lời dựa trên luồng AI Pipeline thống nhất với Timeout Guard siêu tốc

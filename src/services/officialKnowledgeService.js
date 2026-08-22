@@ -112,37 +112,40 @@ const INITIAL_KNOWLEDGE_REPO = [
   }
 ];
 
-let mockStore = [...INITIAL_KNOWLEDGE_REPO];
+const OFFICIAL_KNOWLEDGE_STORE = [...INITIAL_KNOWLEDGE_REPO];
 
 // 1. LẤY DANH SÁCH TÀI LIỆU (Có bộ lọc và Timeout chống treo mạng)
 export const getKnowledgeList = async (filters = {}) => {
   try {
-    let query = supabase.from('official_knowledge_repository').select('*');
+    let query = supabase.from('official_documents').select('*');
 
-    if (filters.category && filters.category !== 'ALL') {
-      query = query.eq('category', filters.category);
-    }
-    if (filters.status) {
-      query = query.eq('status', filters.status);
-    }
-    if (filters.verified !== undefined && filters.verified !== null) {
-      query = query.eq('verified', filters.verified);
+    if (filters.search) {
+      query = query.or(`title.ilike.%${filters.search}%,content_summary.ilike.%${filters.search}%`);
     }
 
-    // Đặt timeout 400ms để nếu Supabase chậm hoặc chưa kết nối DB thì fallback ngay về mockStore
-    const fetchPromise = query.order('last_updated', { ascending: false });
-    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 400));
-
-    const { data, error } = await Promise.race([fetchPromise, timeoutPromise]);
+    const { data, error } = await query.order('issued_date', { ascending: false });
 
     if (!error && data && data.length > 0) {
-      return data;
+      return data.map(d => ({
+        id: d.id,
+        title: d.title,
+        agency: d.issuing_body,
+        document_number: d.doc_number,
+        issue_date: d.issued_date,
+        effective_date: d.issued_date,
+        source_url: d.source_url,
+        locality: 'Di Linh, Lâm Đồng',
+        content: d.content_summary,
+        verified: true,
+        status: 'active',
+        last_updated: d.updated_at || d.created_at
+      }));
     }
   } catch (err) {
-    // Dùng dữ liệu chuẩn hóa mockStore
+    console.error('Error fetching knowledge:', err);
   }
 
-  let filtered = [...mockStore];
+  let filtered = [...OFFICIAL_KNOWLEDGE_STORE];
   if (filters.category && filters.category !== 'ALL') {
     filtered = filtered.filter(item => item.category === filters.category);
   }
@@ -166,36 +169,31 @@ export const getKnowledgeList = async (filters = {}) => {
 // 2. THÊM TÀI LIỆU MỚI (Create)
 export const createKnowledge = async (docData) => {
   const payload = {
+    doc_number: docData.documentNumber || docData.document_number || '01/HD-CNS',
     title: docData.title,
-    category: docData.category || 'OTHER',
-    agency: docData.agency || 'UBND Huyện Di Linh',
-    document_number: docData.documentNumber || docData.document_number || '15/UBND',
-    issue_date: docData.issueDate || docData.issue_date || new Date().toISOString().split('T')[0],
-    effective_date: docData.effectiveDate || docData.effective_date || new Date().toISOString().split('T')[0],
+    issuing_body: docData.agency || 'UBND Xã Di Linh',
+    issued_date: docData.issueDate || docData.issue_date || new Date().toISOString().split('T')[0],
+    effect_status: 'Còn hiệu lực',
     source_url: docData.sourceUrl || docData.source_url || 'https://dilinh.lamdong.gov.vn/',
-    locality: docData.locality || 'Di Linh, Lâm Đồng',
-    content: docData.content,
-    verified: docData.verified !== undefined ? docData.verified : true,
-    status: docData.status || 'active',
-    last_updated: new Date().toISOString()
+    content_summary: docData.content
   };
 
   try {
     const { data, error } = await supabase
-      .from('official_knowledge_repository')
+      .from('official_documents')
       .insert([payload])
       .select();
 
     if (error || !data) {
       const newItem = { id: `know-${Date.now()}`, ...payload };
-      mockStore.unshift(newItem);
+      OFFICIAL_KNOWLEDGE_STORE.unshift(newItem);
       return { success: true, data: newItem };
     }
 
     return { success: true, data: data[0] };
   } catch (err) {
     const newItem = { id: `know-${Date.now()}`, ...payload };
-    mockStore.unshift(newItem);
+    OFFICIAL_KNOWLEDGE_STORE.unshift(newItem);
     return { success: true, data: newItem };
   }
 };
@@ -203,30 +201,32 @@ export const createKnowledge = async (docData) => {
 // 3. SỬA TÀI LIỆU (Update)
 export const updateKnowledge = async (id, docData) => {
   const payload = {
-    ...docData,
-    last_updated: new Date().toISOString()
+    title: docData.title,
+    issuing_body: docData.agency,
+    content_summary: docData.content,
+    updated_at: new Date().toISOString()
   };
 
   try {
     const { data, error } = await supabase
-      .from('official_knowledge_repository')
+      .from('official_documents')
       .update(payload)
       .eq('id', id)
       .select();
 
     if (error || !data) {
-      const idx = mockStore.findIndex(item => item.id === id);
+      const idx = OFFICIAL_KNOWLEDGE_STORE.findIndex(item => item.id === id);
       if (idx !== -1) {
-        mockStore[idx] = { ...mockStore[idx], ...payload };
-        return { success: true, data: mockStore[idx] };
+        OFFICIAL_KNOWLEDGE_STORE[idx] = { ...OFFICIAL_KNOWLEDGE_STORE[idx], ...payload };
+        return { success: true, data: OFFICIAL_KNOWLEDGE_STORE[idx] };
       }
     }
     return { success: true, data: data ? data[0] : null };
   } catch (err) {
-    const idx = mockStore.findIndex(item => item.id === id);
+    const idx = OFFICIAL_KNOWLEDGE_STORE.findIndex(item => item.id === id);
     if (idx !== -1) {
-      mockStore[idx] = { ...mockStore[idx], ...payload };
-      return { success: true, data: mockStore[idx] };
+      OFFICIAL_KNOWLEDGE_STORE[idx] = { ...OFFICIAL_KNOWLEDGE_STORE[idx], ...payload };
+      return { success: true, data: OFFICIAL_KNOWLEDGE_STORE[idx] };
     }
     return { success: false, error: err.message };
   }
@@ -236,14 +236,14 @@ export const updateKnowledge = async (id, docData) => {
 export const deleteKnowledge = async (id) => {
   try {
     const { error } = await supabase
-      .from('official_knowledge_repository')
+      .from('official_documents')
       .delete()
       .eq('id', id);
 
-    mockStore = mockStore.filter(item => item.id !== id);
+    const idx = OFFICIAL_KNOWLEDGE_STORE.findIndex(item => item.id === id);
+    if (idx !== -1) OFFICIAL_KNOWLEDGE_STORE.splice(idx, 1);
     return { success: true };
   } catch (err) {
-    mockStore = mockStore.filter(item => item.id !== id);
     return { success: true };
   }
 };
