@@ -12,6 +12,7 @@ import { getCommunityActivities, deleteCommunityActivity } from './services/comm
 import { getLearningModels } from './services/modelService';
 import { getOfficialDocuments } from './services/officialDocService';
 import { INITIAL_NEWS, getNewsArticles } from './services/newsService';
+import { getVillageContactsConfig, DEFAULT_VILLAGE_CONTACTS } from './services/contactConfigService';
 
 // COMMON COMPONENTS
 import Header from './components/common/Header';
@@ -23,6 +24,7 @@ import AiAssistantModal from './components/common/AiAssistantModal';
 import FloatingActionStickers from './components/common/FloatingActionStickers';
 import LedTickerBar from './components/common/LedTickerBar';
 import MobileBottomNav from './components/common/MobileBottomNav';
+import Pagination from './components/common/Pagination';
 
 // FEATURE COMPONENTS
 import ResourceCard from './components/features/ResourceCard';
@@ -185,6 +187,18 @@ export default function App() {
   const [newsCategory, setNewsCategory] = useState('all');
   const [isRefreshingNews, setIsRefreshingNews] = useState(false);
 
+  // PAGINATION STATES
+  const [newsCurrentPage, setNewsCurrentPage] = useState(1);
+  const [activitiesCurrentPage, setActivitiesCurrentPage] = useState(1);
+  const [selectedLearningCategory, setSelectedLearningCategory] = useState(null);
+  const [learningCategoryPage, setLearningCategoryPage] = useState(1);
+
+  // CẤU HÌNH SỐ LƯỢNG MỤC MỖI TRANG THEO YÊU CẦU
+  const NEWS_PER_PAGE = 12;
+  const ACTIVITIES_PER_PAGE = 8;
+  const LEARNING_PAGE_SIZE = 9; // 9 hoặc 12 bài/trang (bố cục lưới 3 cột)
+  const LEARNING_PREVIEW_LIMIT = 6; // 6 bài tượng trưng cho mỗi đề mục lớn
+
   // MODALS STATE
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [isAiAssistantOpen, setIsAiAssistantOpen] = useState(false);
@@ -199,11 +213,46 @@ export default function App() {
   const [isKnowledgeAdminOpen, setIsKnowledgeAdminOpen] = useState(false);
   const [isAdminControlOpen, setIsAdminControlOpen] = useState(false);
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
+  const [villageContacts, setVillageContacts] = useState(DEFAULT_VILLAGE_CONTACTS);
 
   useEffect(() => {
     fetchInitialData();
     checkUserSession();
+
+    // Lắng nghe thay đổi cấu hình liên hệ & QR từ Ban Quản Trị
+    const handleContactsUpdate = (e) => {
+      if (e.detail) setVillageContacts(e.detail);
+    };
+    window.addEventListener('village_contacts_updated', handleContactsUpdate);
+
+    // Lắng nghe thay đổi trạng thái phiên đăng nhập thời gian thực
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (session?.user) {
+        setUser(session.user);
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', session.user.id)
+          .single();
+        setRole(profile?.role || 'citizen');
+      } else {
+        setUser(null);
+        setRole('citizen');
+      }
+    });
+
+    return () => {
+      subscription?.unsubscribe();
+      window.removeEventListener('village_contacts_updated', handleContactsUpdate);
+    };
   }, []);
+
+  // Tự động reset về trang 1 khi đổi bộ lọc tìm kiếm hoặc chuyển tab
+  useEffect(() => {
+    setNewsCurrentPage(1);
+    setActivitiesCurrentPage(1);
+    setLearningCategoryPage(1);
+  }, [searchQuery, activeTab]);
 
   const checkUserSession = async () => {
     const { data: { session } } = await supabase.auth.getSession();
@@ -215,17 +264,22 @@ export default function App() {
         .eq('id', session.user.id)
         .single();
       if (profile) setRole(profile.role);
+    } else {
+      setUser(null);
+      setRole('citizen');
     }
   };
 
   const fetchInitialData = async () => {
     setLoading(true);
-    const [resRes, resAct, resMod, resDoc] = await Promise.all([
+    const [resRes, resAct, resMod, resDoc, vContacts] = await Promise.all([
       getLearningResources(),
       getCommunityActivities(),
       getLearningModels(),
-      getOfficialDocuments()
+      getOfficialDocuments(),
+      getVillageContactsConfig()
     ]);
+    if (vContacts) setVillageContacts(vContacts);
 
     // Danh sách toàn bộ các bài học Video thực tế trong mục TÔI MUỐN HỌC
     const allHelpVideos = [
@@ -408,7 +462,7 @@ export default function App() {
     }
   };
 
-  // FILTERED RESOURCES
+  // 1. FILTERED & PAGINATED RESOURCES (TÔI MUỐN HỌC)
   const filteredResources = resources.filter(res => {
     const matchesTab = activeTab === 'all' || activeTab === 'resources' || res.type === activeTab;
     const matchesSearch = !searchQuery || 
@@ -418,6 +472,54 @@ export default function App() {
     return matchesTab && matchesSearch;
   });
 
+  // Gom nhóm bài học theo Đề mục lớn (Category)
+  const groupedResources = filteredResources.reduce((acc, res) => {
+    const cat = res.category || 'Kỹ năng số cơ bản';
+    if (!acc[cat]) acc[cat] = [];
+    acc[cat].push(res);
+    return acc;
+  }, {});
+
+  // 2. FILTERED & PAGINATED NEWS (BẢN TIN THỜI SỰ - 12 BÀI / TRANG)
+  const filteredNewsList = newsList.filter(news => {
+    const matchesCategory = (() => {
+      if (newsCategory === 'all') return true;
+      if (newsCategory === 'dilinh') return news.scope === 'dilinh' || news.category?.includes('Di Linh') || news.category?.includes('Thôn');
+      if (newsCategory === 'lamdong') return news.scope === 'lamdong' || news.category?.includes('Lâm Đồng');
+      if (newsCategory === 'national') return news.scope === 'national' || news.category?.includes('Quốc Gia') || news.category?.includes('Chính Sách');
+      if (newsCategory === 'agriculture') return news.category?.includes('Nông Nghiệp');
+      if (newsCategory === 'security') return news.category?.includes('Cảnh Báo');
+      return true;
+    })();
+
+    const matchesSearch = !searchQuery ||
+      news.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      news.summary?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      news.source?.toLowerCase().includes(searchQuery.toLowerCase());
+
+    return matchesCategory && matchesSearch;
+  });
+
+  const totalNewsPages = Math.ceil(filteredNewsList.length / NEWS_PER_PAGE) || 1;
+  const paginatedNews = filteredNewsList.slice(
+    (newsCurrentPage - 1) * NEWS_PER_PAGE,
+    newsCurrentPage * NEWS_PER_PAGE
+  );
+
+  // 3. FILTERED & PAGINATED ACTIVITIES (HOẠT ĐỘNG LAN TỎA - 8 BÀI / TRANG)
+  const filteredActivities = activities.filter(act => {
+    if (!searchQuery) return true;
+    return act.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+           act.content?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+           act.author_name?.toLowerCase().includes(searchQuery.toLowerCase());
+  });
+
+  const totalActivityPages = Math.ceil(filteredActivities.length / ACTIVITIES_PER_PAGE) || 1;
+  const paginatedActivities = filteredActivities.slice(
+    (activitiesCurrentPage - 1) * ACTIVITIES_PER_PAGE,
+    activitiesCurrentPage * ACTIVITIES_PER_PAGE
+  );
+
   return (
     <div className={`min-h-screen bg-slate-50 flex flex-col ${seniorMode ? 'senior-mode' : ''}`}>
       
@@ -425,7 +527,6 @@ export default function App() {
       <Header
         user={user}
         role={role}
-        onRoleChange={(newRole) => setRole(newRole)}
         seniorMode={seniorMode}
         setSeniorMode={setSeniorMode}
         onOpenAuth={() => setIsAuthOpen(true)}
@@ -446,26 +547,9 @@ export default function App() {
         <div className="w-full max-w-[1440px] mx-auto px-3 sm:px-5 lg:px-6 py-3 sm:py-4.5 relative z-10">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-3.5 sm:gap-4 lg:gap-5 items-center">
             
-            {/* CỘT 1 (BÊN TRÁI): BIỂU TƯỢNG HUY HIỆU & NỘI DUNG CHÍNH THỐNG */}
-            <div className="md:col-span-12 lg:col-span-5 flex items-center gap-3 sm:gap-4">
+            {/* CỘT 1 (BÊN TRÁI): TIÊU ĐỀ CHÍNH THỐNG */}
+            <div className="md:col-span-12 lg:col-span-5 flex items-center">
               
-              {/* BIỂU TƯỢNG HUY HIỆU TRÒN CHÍNH THỐNG NỀN VÀNG HOA SEN / SAO VÀNG */}
-              <div className="shrink-0 relative group">
-                <div className="w-14 h-14 sm:w-18 sm:h-18 rounded-full bg-gradient-to-tr from-amber-400 via-yellow-300 to-amber-500 p-1 shadow-2xl ring-4 ring-white/95 flex items-center justify-center">
-                  <div className="w-full h-full rounded-full bg-gradient-to-b from-amber-400 to-yellow-500 border-2 border-red-600 flex flex-col items-center justify-center text-center p-0.5 relative overflow-hidden">
-                    <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-red-600 text-yellow-300 flex items-center justify-center font-black text-xs sm:text-sm shadow-xs">
-                      ★
-                    </div>
-                    <span className="text-[7px] sm:text-[8px] font-black text-red-800 uppercase tracking-tighter mt-0.5 leading-none">
-                      THÔN 6
-                    </span>
-                    <span className="text-[6px] sm:text-[7px] font-black text-slate-900 leading-none">
-                      DI LINH
-                    </span>
-                  </div>
-                </div>
-              </div>
-
               {/* NỘI DUNG VĂN BẢN */}
               <div className="space-y-0.5 sm:space-y-1">
                 <div className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-black tracking-widest text-amber-300 uppercase drop-shadow-md">
@@ -557,12 +641,12 @@ export default function App() {
                 {/* ẢNH MÃ QR THÔN 6 */}
                 <div className="relative w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-xl p-1 shadow-inner border border-slate-200 shrink-0 overflow-hidden">
                   <img 
-                    src="/qr_zalo_thon6.png" 
+                    src={villageContacts.qr_zalo_image || '/qr_zalo_thon6.png'} 
                     alt="Mã QR Zalo Cộng Đồng Thôn 6 Xã Di Linh" 
                     className="w-full h-full object-contain"
                     onError={(e) => {
                       e.currentTarget.onerror = null;
-                      e.currentTarget.src = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https://zalo.me/0903382277';
+                      e.currentTarget.src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(villageContacts.zalo_community_link || 'https://zalo.me/0903382277')}`;
                     }}
                   />
                   <div className="absolute inset-0 bg-blue-600/15 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
@@ -576,10 +660,10 @@ export default function App() {
                     <span>💬 ZALO THÔN 6</span>
                   </div>
                   <h4 className="text-xs sm:text-sm font-black text-slate-900 leading-tight">
-                    Quét Mã Tham Gia
+                    {villageContacts.qr_zalo_title || 'Quét Mã Tham Gia'}
                   </h4>
                   <p className="text-[11px] text-slate-600 font-medium leading-tight">
-                    Cộng Đồng Thôn 6
+                    {villageContacts.qr_zalo_description || 'Cộng Đồng Thôn 6'}
                   </p>
                   <div className="text-[10px] text-blue-600 font-bold flex items-center gap-0.5 group-hover:underline pt-0.5">
                     <span>Chạm phóng to</span>
@@ -603,8 +687,9 @@ export default function App() {
         <Sidebar
           activeTab={activeTab}
           setActiveTab={setActiveTab}
+          user={user}
           role={role}
-          onRoleChange={(newRole) => setRole(newRole)}
+          hotlinePhone={villageContacts.hotline_main}
           onOpenAiAssistant={() => setIsAiAssistantOpen(true)}
           onOpenNeedHelp={() => setIsNeedHelpOpen(true)}
           onOpenUploadActivity={() => setIsUploadActivityOpen(true)}
@@ -810,12 +895,26 @@ export default function App() {
               </div>
 
               <div className="flex items-center justify-between">
-                <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-                  <span>🎬 Kho Bài Học Cầm Tay Chỉ Việc (TÔI MUỐN HỌC)</span>
-                  <span className="text-xs bg-blue-100 text-blue-800 font-extrabold px-2.5 py-0.5 rounded-full">
-                    {filteredResources.length} bài học
-                  </span>
-                </h2>
+                <div className="flex items-center gap-2">
+                  {selectedLearningCategory && (
+                    <button
+                      type="button"
+                      onClick={() => setSelectedLearningCategory(null)}
+                      className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center gap-1 transition cursor-pointer shadow-2xs"
+                      title="Quay lại danh sách các đề mục"
+                    >
+                      <span>‹ Quay lại tất cả đề mục</span>
+                    </button>
+                  )}
+                  <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+                    <span>🎬 {selectedLearningCategory ? `Đề mục: ${selectedLearningCategory}` : 'Kho Bài Học Cầm Tay Chỉ Việc (TÔI MUỐN HỌC)'}</span>
+                    <span className="text-xs bg-blue-100 text-blue-800 font-extrabold px-2.5 py-0.5 rounded-full">
+                      {selectedLearningCategory 
+                        ? `${(groupedResources[selectedLearningCategory] || []).length} bài học`
+                        : `${filteredResources.length} bài học`}
+                    </span>
+                  </h2>
+                </div>
 
                 {(role === 'tech_team' || role === 'admin' || role === 'supporter') && (
                   <button
@@ -834,21 +933,112 @@ export default function App() {
                     <div key={n} className="bg-white h-72 rounded-2xl border border-slate-200 animate-pulse p-4"></div>
                   ))}
                 </div>
-              ) : filteredResources.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-                  {filteredResources.map(res => (
-                    <ResourceCard
-                      key={res.id}
-                      resource={res}
-                      onSelect={(selected) => setSelectedResource(selected)}
-                    />
-                  ))}
-                </div>
-              ) : (
+              ) : filteredResources.length === 0 ? (
                 <div className="bg-white p-10 rounded-3xl border border-slate-200 text-center">
                   <HelpCircle className="w-10 h-10 text-slate-300 mx-auto mb-2" />
                   <h3 className="font-bold text-slate-700 text-sm">Chưa có bài học phù hợp</h3>
                   <p className="text-xs text-slate-500 mt-1">Bà con thử bấm các Thẻ Menu ở Sidebar bên trái nhé.</p>
+                </div>
+              ) : selectedLearningCategory ? (
+                /* CHẾ ĐỘ XEM TOÀN BỘ BÀI HỌC CỦA 1 ĐỀ MỤC LỚN (CÓ PHÂN TRANG 9 BÀI / TRANG) */
+                (() => {
+                  const catItems = groupedResources[selectedLearningCategory] || filteredResources.filter(r => r.category === selectedLearningCategory);
+                  const totalCatPages = Math.ceil(catItems.length / LEARNING_PAGE_SIZE) || 1;
+                  const paginatedCatItems = catItems.slice(
+                    (learningCategoryPage - 1) * LEARNING_PAGE_SIZE,
+                    learningCategoryPage * LEARNING_PAGE_SIZE
+                  );
+
+                  return (
+                    <div className="space-y-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+                        {paginatedCatItems.map(res => (
+                          <ResourceCard
+                            key={res.id}
+                            resource={res}
+                            onSelect={(selected) => setSelectedResource(selected)}
+                          />
+                        ))}
+                      </div>
+
+                      {/* THANH PHÂN TRANG CHO ĐỀ MỤC LỚN */}
+                      <Pagination
+                        currentPage={learningCategoryPage}
+                        totalPages={totalCatPages}
+                        onPageChange={setLearningCategoryPage}
+                        totalItems={catItems.length}
+                        itemsPerPage={LEARNING_PAGE_SIZE}
+                        itemLabel="bài học"
+                      />
+                    </div>
+                  );
+                })()
+              ) : (
+                /* CHẾ ĐỘ HIỂN THỊ TỔNG QUAN CÁC ĐỀ MỤC LỚN (MỖI ĐỀ MỤC 6 BÀI TƯỢNG TRƯNG) */
+                <div className="space-y-8">
+                  {Object.entries(groupedResources).map(([categoryName, categoryItems]) => {
+                    const previewItems = categoryItems.slice(0, LEARNING_PREVIEW_LIMIT);
+                    const hasMore = categoryItems.length > LEARNING_PREVIEW_LIMIT;
+
+                    return (
+                      <div key={categoryName} className="bg-white/80 p-4 sm:p-5 rounded-3xl border border-slate-200 shadow-2xs space-y-4">
+                        {/* TIÊU ĐỀ ĐỀ MỤC LỚN & NÚT XEM THÊM */}
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
+                          <div className="flex items-center gap-2">
+                            <span className="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
+                            <h3 className="font-black text-base sm:text-lg text-slate-900">
+                              {categoryName}
+                            </h3>
+                            <span className="text-xs font-bold text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-200">
+                              {categoryItems.length} bài
+                            </span>
+                          </div>
+
+                          {hasMore && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSelectedLearningCategory(categoryName);
+                                setLearningCategoryPage(1);
+                              }}
+                              className="inline-flex items-center gap-1.5 text-xs font-extrabold text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-3.5 py-1.5 rounded-xl border border-blue-200 transition cursor-pointer self-end sm:self-auto"
+                            >
+                              <span>Xem tất cả {categoryItems.length} bài</span>
+                              <span>→</span>
+                            </button>
+                          )}
+                        </div>
+
+                        {/* LƯỚI 6 BÀI TƯỢNG TRƯNG */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+                          {previewItems.map(res => (
+                            <ResourceCard
+                              key={res.id}
+                              resource={res}
+                              onSelect={(selected) => setSelectedResource(selected)}
+                            />
+                          ))}
+                        </div>
+
+                        {/* NÚT XEM THÊM DƯỚI CÙNG NẾU CÓ TRÊN 6 BÀI */}
+                        {hasMore && (
+                          <div className="text-center pt-2">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSelectedLearningCategory(categoryName);
+                                setLearningCategoryPage(1);
+                              }}
+                              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 text-blue-800 font-extrabold text-xs border border-blue-200 shadow-2xs transition cursor-pointer"
+                            >
+                              <span>Xem thêm {categoryItems.length - LEARNING_PREVIEW_LIMIT} bài học khác thuộc đề mục "{categoryName}"</span>
+                              <span>→</span>
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </section>
@@ -894,7 +1084,7 @@ export default function App() {
               {/* BỘ LỌC PHẠM VI & CHUYÊN MỤC TIN TỨC */}
               <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
                 <button
-                  onClick={() => setNewsCategory('all')}
+                  onClick={() => { setNewsCategory('all'); setNewsCurrentPage(1); }}
                   className={`px-3 py-1.5 rounded-xl text-xs font-bold transition shrink-0 cursor-pointer ${
                     newsCategory === 'all' 
                       ? 'bg-amber-600 text-white shadow-xs' 
@@ -904,7 +1094,7 @@ export default function App() {
                   Tất cả tin tức ({newsList.length})
                 </button>
                 <button
-                  onClick={() => setNewsCategory('dilinh')}
+                  onClick={() => { setNewsCategory('dilinh'); setNewsCurrentPage(1); }}
                   className={`px-3 py-1.5 rounded-xl text-xs font-bold transition shrink-0 cursor-pointer ${
                     newsCategory === 'dilinh' 
                       ? 'bg-blue-600 text-white shadow-xs' 
@@ -914,7 +1104,7 @@ export default function App() {
                   🏛️ Xã Di Linh & Thôn 6
                 </button>
                 <button
-                  onClick={() => setNewsCategory('lamdong')}
+                  onClick={() => { setNewsCategory('lamdong'); setNewsCurrentPage(1); }}
                   className={`px-3 py-1.5 rounded-xl text-xs font-bold transition shrink-0 cursor-pointer ${
                     newsCategory === 'lamdong' 
                       ? 'bg-teal-600 text-white shadow-xs' 
@@ -924,7 +1114,7 @@ export default function App() {
                   🌲 Tỉnh Lâm Đồng
                 </button>
                 <button
-                  onClick={() => setNewsCategory('national')}
+                  onClick={() => { setNewsCategory('national'); setNewsCurrentPage(1); }}
                   className={`px-3 py-1.5 rounded-xl text-xs font-bold transition shrink-0 cursor-pointer ${
                     newsCategory === 'national' 
                       ? 'bg-red-600 text-white shadow-xs' 
@@ -934,7 +1124,7 @@ export default function App() {
                   🇻🇳 Cả Nước
                 </button>
                 <button
-                  onClick={() => setNewsCategory('agriculture')}
+                  onClick={() => { setNewsCategory('agriculture'); setNewsCurrentPage(1); }}
                   className={`px-3 py-1.5 rounded-xl text-xs font-bold transition shrink-0 cursor-pointer ${
                     newsCategory === 'agriculture' 
                       ? 'bg-emerald-600 text-white shadow-xs' 
@@ -944,7 +1134,7 @@ export default function App() {
                   ☕ Giá Cà phê & Nông sản
                 </button>
                 <button
-                  onClick={() => setNewsCategory('security')}
+                  onClick={() => { setNewsCategory('security'); setNewsCurrentPage(1); }}
                   className={`px-3 py-1.5 rounded-xl text-xs font-bold transition shrink-0 cursor-pointer ${
                     newsCategory === 'security' 
                       ? 'bg-rose-600 text-white shadow-xs' 
@@ -955,37 +1145,45 @@ export default function App() {
                 </button>
               </div>
 
-              {/* LƯỚI DANH SÁCH BÀI VIẾT TIN TỨC */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                {newsList
-                  .filter(news => {
-                    if (newsCategory === 'all') return true;
-                    if (newsCategory === 'dilinh') return news.scope === 'dilinh' || news.category?.includes('Di Linh') || news.category?.includes('Thôn');
-                    if (newsCategory === 'lamdong') return news.scope === 'lamdong' || news.category?.includes('Lâm Đồng');
-                    if (newsCategory === 'national') return news.scope === 'national' || news.category?.includes('Quốc Gia') || news.category?.includes('Chính Sách');
-                    if (newsCategory === 'agriculture') return news.category?.includes('Nông Nghiệp');
-                    if (newsCategory === 'security') return news.category?.includes('Cảnh Báo');
-                    return true;
-                  })
-                  .map(news => (
-                    <NewsCard 
-                      key={news.id} 
-                      news={news} 
-                      onSelect={(item) => setSelectedNews(item)}
-                    />
-                  ))}
-              </div>
+              {/* LƯỚI DANH SÁCH BÀI VIẾT TIN TỨC (PHÂN TRANG 12 BÀI / TRANG) */}
+              {paginatedNews.length > 0 ? (
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    {paginatedNews.map(news => (
+                      <NewsCard 
+                        key={news.id} 
+                        news={news} 
+                        onSelect={(item) => setSelectedNews(item)}
+                      />
+                    ))}
+                  </div>
+
+                  {/* THANH PHÂN TRANG TIN TỨC (12 BÀI / TRANG) */}
+                  <Pagination
+                    currentPage={newsCurrentPage}
+                    totalPages={totalNewsPages}
+                    onPageChange={setNewsCurrentPage}
+                    totalItems={filteredNewsList.length}
+                    itemsPerPage={NEWS_PER_PAGE}
+                    itemLabel="bản tin"
+                  />
+                </div>
+              ) : (
+                <div className="bg-white p-8 rounded-3xl border border-slate-200 text-center">
+                  <p className="text-xs text-slate-500 font-medium">Không tìm thấy bản tin nào phù hợp với bộ lọc hiện tại.</p>
+                </div>
+              )}
             </section>
           )}
 
-          {/* 3. COMMUNITY ACTIVITIES & SPREAD (🌱 HOẠT ĐỘNG LAN TỎA) */}
+          {/* 3. COMMUNITY ACTIVITIES & SPREAD (🌱 HOẠT ĐỘNG LAN TỎA - 8 BÀI / TRANG) */}
           {(activeTab === 'all' || activeTab === 'activities') && (
             <section className="space-y-4 pt-4 border-t border-slate-200">
               <div className="flex items-center justify-between">
                 <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
                   <span>🌱 Nhật Ký HOẠT ĐỘNG LAN TỎA Cộng Đồng</span>
                   <span className="text-xs bg-emerald-100 text-emerald-800 font-extrabold px-2.5 py-0.5 rounded-full">
-                    {activities.length} kết quả
+                    {filteredActivities.length} kết quả
                   </span>
                 </h2>
 
@@ -998,16 +1196,34 @@ export default function App() {
                 </button>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                {activities.map(act => (
-                  <ActivityCard 
-                    key={act.id} 
-                    activity={act} 
-                    role={role}
-                    onDelete={handleDeleteActivity}
+              {paginatedActivities.length > 0 ? (
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    {paginatedActivities.map(act => (
+                      <ActivityCard 
+                        key={act.id} 
+                        activity={act} 
+                        role={role}
+                        onDelete={handleDeleteActivity}
+                      />
+                    ))}
+                  </div>
+
+                  {/* THANH PHÂN TRANG HOẠT ĐỘNG LAN TỎA (8 BÀI / TRANG) */}
+                  <Pagination
+                    currentPage={activitiesCurrentPage}
+                    totalPages={totalActivityPages}
+                    onPageChange={setActivitiesCurrentPage}
+                    totalItems={filteredActivities.length}
+                    itemsPerPage={ACTIVITIES_PER_PAGE}
+                    itemLabel="hoạt động"
                   />
-                ))}
-              </div>
+                </div>
+              ) : (
+                <div className="bg-white p-8 rounded-3xl border border-slate-200 text-center">
+                  <p className="text-xs text-slate-500 font-medium">Chưa có bài viết hoạt động lan tỏa nào.</p>
+                </div>
+              )}
             </section>
           )}
 
@@ -1094,6 +1310,7 @@ export default function App() {
       <NeedHelpModal
         isOpen={isNeedHelpOpen}
         onClose={() => setIsNeedHelpOpen(false)}
+        hotlinePhone={villageContacts.hotline_main}
       />
 
       <MySkillsModal
@@ -1151,9 +1368,13 @@ export default function App() {
         onClose={() => setSelectedNews(null)}
       />
 
-      {/* CỤM STICKER NỔI GÓC MÀN HÌNH: ZALO 0903.382.277 & TRỢ LÝ AI */}
+      {/* CỤM STICKER NỔI GÓC MÀN HÌNH: ZALO CHAT BOX & TRỢ LÝ AI */}
       <FloatingActionStickers
         onOpenAiAssistant={() => setIsAiAssistantOpen(true)}
+        chatZaloPhone={villageContacts.chat_zalo_phone || '0903.382.277'}
+        chatZaloTitle={villageContacts.chat_zalo_title || 'Chat Zalo Hỗ Trợ'}
+        chatZaloSubtitle={villageContacts.chat_zalo_subtitle || villageContacts.chat_zalo_phone || '0903.382.277'}
+        chatZaloLink={villageContacts.chat_zalo_link || 'https://zalo.me/0903382277'}
       />
 
       {/* MODAL PHÓNG TO MÃ QR ZALO THÔN 6 */}
@@ -1180,22 +1401,22 @@ export default function App() {
                 💬 Zalo Cộng Đồng Số
               </span>
               <h3 className="text-xl font-black text-slate-900">
-                Thôn 6 Xã Di Linh
+                {villageContacts.qr_zalo_title || 'Thôn 6 Xã Di Linh'}
               </h3>
               <p className="text-xs text-slate-500 font-medium">
-                Mở ứng dụng Zalo trên điện thoại và quét mã QR dưới đây để tham gia nhóm cộng đồng:
+                {villageContacts.qr_zalo_description || 'Mở ứng dụng Zalo trên điện thoại và quét mã QR dưới đây để tham gia nhóm cộng đồng:'}
               </p>
             </div>
 
             {/* ẢNH QR PHÓNG TO */}
             <div className="p-3 bg-slate-50 rounded-2xl border-2 border-dashed border-blue-300 flex justify-center">
               <img 
-                src="/qr_zalo_thon6.png" 
+                src={villageContacts.qr_zalo_image || '/qr_zalo_thon6.png'} 
                 alt="Mã QR Zalo Thôn 6 Xã Di Linh" 
                 className="w-56 h-56 object-contain rounded-xl shadow-sm"
                 onError={(e) => {
                   e.currentTarget.onerror = null;
-                  e.currentTarget.src = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https://zalo.me/0903382277';
+                  e.currentTarget.src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(villageContacts.zalo_community_link || 'https://zalo.me/0903382277')}`;
                 }}
               />
             </div>
@@ -1203,7 +1424,7 @@ export default function App() {
             {/* NÚT HÀNH ĐỘNG */}
             <div className="flex gap-2">
               <a
-                href="https://zalo.me/0903382277"
+                href={villageContacts.zalo_community_link || 'https://zalo.me/0903382277'}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex-1 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-black text-xs shadow-md transition flex items-center justify-center gap-1.5 cursor-pointer"
