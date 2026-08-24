@@ -43,7 +43,7 @@ export default function Footer() {
             </h4>
             <div className="flex items-start gap-2 text-xs text-slate-300">
               <MapPin className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
-              <span>Nhà văn hóa Thôn 6, Xã Di Linh, Huyện Di Linh, Tỉnh Lâm Đồng</span>
+              <span>Nhà văn hóa Thôn 6, Xã Di Linh, Tỉnh Lâm Đồng</span>
             </div>
             <div className="flex items-center gap-2 text-xs text-slate-300">
               <Phone className="w-4 h-4 text-emerald-400 shrink-0" />
