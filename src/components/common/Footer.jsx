@@ -10,8 +10,18 @@ export default function Footer() {
           {/* CỘT 1: GIỚI THIỆU */}
           <div>
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-emerald-500 flex items-center justify-center font-black text-lg">
-                T6
+              <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-amber-400 via-yellow-300 to-amber-500 p-0.5 shadow-lg ring-2 ring-white/90 flex items-center justify-center shrink-0">
+                <div className="w-full h-full rounded-full bg-gradient-to-b from-amber-400 to-yellow-500 border border-red-600 flex flex-col items-center justify-center text-center p-0.5 relative overflow-hidden">
+                  <div className="w-4 h-4 rounded-full bg-red-600 text-yellow-300 flex items-center justify-center font-black text-[9px] shadow-xs">
+                    ★
+                  </div>
+                  <span className="text-[6px] font-black text-red-800 uppercase tracking-tighter mt-0.5 leading-none">
+                    THÔN 6
+                  </span>
+                  <span className="text-[5px] font-black text-slate-900 leading-none">
+                    DI LINH
+                  </span>
+                </div>
               </div>
               <h3 className="font-extrabold text-lg text-white">
                 Chuyển Đổi Số Cộng Đồng

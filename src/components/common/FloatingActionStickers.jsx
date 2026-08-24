@@ -7,19 +7,27 @@ import { Sparkles, MessageCircle, Phone } from 'lucide-react';
  * 1. Sticker Chat Zalo (0903.382.277)
  * 2. Sticker Trợ Lý AI Cộng Đồng Thôn 6
  */
-export default function FloatingActionStickers({ onOpenAiAssistant }) {
+export default function FloatingActionStickers({ 
+  onOpenAiAssistant,
+  chatZaloPhone = '0903.382.277',
+  chatZaloTitle = 'Chat Zalo Hỗ Trợ',
+  chatZaloSubtitle = '0903.382.277',
+  chatZaloLink = 'https://zalo.me/0903382277'
+}) {
+  const actualZaloLink = chatZaloLink || `https://zalo.me/${chatZaloPhone.replace(/[^0-9]/g, '')}`;
+
   return (
     <aside 
       aria-label="Cụm nút hỗ trợ nhanh"
       className="fixed bottom-20 lg:bottom-6 right-3 sm:right-6 z-30 flex flex-col items-end gap-2 pointer-events-none select-none animate-fade-in"
     >
-      {/* 1. STICKER CHAT ZALO (0903.382.277) */}
+      {/* 1. STICKER CHAT ZALO */}
       <a
-        href="https://zalo.me/0903382277"
+        href={actualZaloLink}
         target="_blank"
         rel="noopener noreferrer"
-        aria-label="Liên hệ Zalo Tổ CNS Thôn 6: 0903.382.277"
-        title="Bấm để mở Zalo chat trực tiếp với Tổ CNS: 0903.382.277"
+        aria-label={`Liên hệ Zalo: ${chatZaloPhone}`}
+        title={`Bấm để mở Zalo chat trực tiếp: ${chatZaloPhone}`}
         className="pointer-events-auto group flex items-center gap-2 sm:gap-2.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-full bg-gradient-to-r from-[#0068FF] to-[#0089e8] text-white shadow-lg hover:shadow-2xl hover:shadow-blue-500/40 transform hover:-translate-y-0.5 hover:scale-105 active:scale-95 transition-all duration-200 border-2 border-white/90 cursor-pointer backdrop-blur-xs"
       >
         <span className="relative flex h-2.5 w-2.5 sm:h-3 sm:w-3 shrink-0">
@@ -34,10 +42,10 @@ export default function FloatingActionStickers({ onOpenAiAssistant }) {
 
         <div className="text-left pr-0.5 sm:pr-1">
           <div className="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider text-sky-100 leading-none">
-            Chat Zalo Hỗ Trợ
+            {chatZaloTitle}
           </div>
           <div className="text-[11px] sm:text-xs font-black text-white mt-0.5 leading-none tracking-tight">
-            0903.382.277
+            {chatZaloSubtitle || chatZaloPhone}
           </div>
         </div>
       </a>

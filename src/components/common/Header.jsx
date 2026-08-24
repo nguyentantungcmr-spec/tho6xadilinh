@@ -4,8 +4,7 @@ import RoleBadge from './RoleBadge';
 
 export default function Header({ 
   user, 
-  role, 
-  onRoleChange, 
+  role = 'citizen', 
   seniorMode, 
   setSeniorMode, 
   onOpenAuth, 
@@ -30,8 +29,15 @@ export default function Header({
               <Menu className="w-5 h-5" />
             </button>
 
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-700 to-emerald-600 flex items-center justify-center text-white font-extrabold text-lg shadow-md">
-              T6
+            <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-amber-400 via-yellow-300 to-amber-500 p-0.5 shadow-md ring-2 ring-slate-200 flex items-center justify-center shrink-0">
+              <div className="w-full h-full rounded-full bg-gradient-to-b from-amber-400 to-yellow-500 border border-red-600 flex flex-col items-center justify-center text-center p-0.5 relative overflow-hidden">
+                <div className="w-3.5 h-3.5 rounded-full bg-red-600 text-yellow-300 flex items-center justify-center font-black text-[8px] shadow-xs">
+                  ★
+                </div>
+                <span className="text-[5px] font-black text-red-800 uppercase tracking-tighter leading-none mt-0.5">
+                  THÔN 6
+                </span>
+              </div>
             </div>
             <div>
               <div className="flex items-center gap-2">
@@ -98,20 +104,6 @@ export default function Header({
               </button>
             )}
 
-            {/* ROLE SELECTOR (CHUYỂN ĐỔI VAI TRÒ THỬ NGHIỆM) */}
-            <div className="hidden xl:flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200">
-              <span className="text-[11px] font-bold text-slate-600 px-2">Vai trò:</span>
-              <select
-                value={role}
-                onChange={(e) => onRoleChange(e.target.value)}
-                className="bg-white text-xs font-semibold text-slate-800 py-1.5 px-2.5 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
-              >
-                <option value="citizen">👤 1. Người dân</option>
-                <option value="supporter">🤝 2. Người hỗ trợ số</option>
-                <option value="tech_team">👥 3. Tổ công nghệ số</option>
-                <option value="admin">⚙️ 4. Quản trị viên</option>
-              </select>
-            </div>
 
             {/* AUTH BUTTONS */}
             {user ? (

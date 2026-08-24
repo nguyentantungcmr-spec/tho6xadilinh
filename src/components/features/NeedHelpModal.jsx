@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { X, HelpCircle, PhoneCall, Send, CheckCircle2, AlertCircle } from 'lucide-react';
 import { supabase } from '../../services/supabaseClient';
 
-export default function NeedHelpModal({ isOpen, onClose }) {
+export default function NeedHelpModal({ isOpen, onClose, hotlinePhone = '0903.382.277' }) {
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('Thôn 6, Xã Di Linh');
@@ -170,11 +170,11 @@ export default function NeedHelpModal({ isOpen, onClose }) {
 
             <div className="pt-1 text-center">
               <a 
-                href="tel:0903382277"
+                href={`tel:${hotlinePhone.replace(/[^0-9]/g, '')}`}
                 className="inline-flex items-center gap-1.5 text-xs font-extrabold text-emerald-700 hover:underline"
               >
                 <PhoneCall className="w-3.5 h-3.5" />
-                <span>Hoặc Gọi Trực Tiếp Hotline: 0903.382.277</span>
+                <span>Hoặc Gọi Trực Tiếp Hotline: {hotlinePhone}</span>
               </a>
             </div>
           </form>

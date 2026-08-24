@@ -1,14 +1,15 @@
 import React from 'react';
 import { 
-  Bot, HeartHandshake, Award, Sparkles, PhoneCall, X, Plus, ShieldCheck, User 
+  Bot, HeartHandshake, Award, Sparkles, PhoneCall, X, Plus, ShieldCheck, User, Lock 
 } from 'lucide-react';
 import RoleBadge from './RoleBadge';
 
 export default function Sidebar({ 
   activeTab, 
   setActiveTab, 
-  role, 
-  onRoleChange,
+  user,
+  role = 'citizen', 
+  hotlinePhone = '0903.382.277',
   onOpenAiAssistant,
   onOpenNeedHelp,
   onOpenUploadActivity,
@@ -112,8 +113,12 @@ export default function Sidebar({
           {/* HEADER DI ĐỘNG */}
           <div className="flex items-center justify-between lg:hidden border-b border-slate-100 pb-3">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-blue-600 text-white font-extrabold flex items-center justify-center text-sm">
-                T6
+              <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-amber-400 via-yellow-300 to-amber-500 p-0.5 shadow-xs ring-1 ring-slate-200 flex items-center justify-center shrink-0">
+                <div className="w-full h-full rounded-full bg-gradient-to-b from-amber-400 to-yellow-500 border border-red-600 flex flex-col items-center justify-center text-center p-0.5 relative overflow-hidden">
+                  <div className="w-2.5 h-2.5 rounded-full bg-red-600 text-yellow-300 flex items-center justify-center font-black text-[6px]">
+                    ★
+                  </div>
+                </div>
               </div>
               <span className="font-extrabold text-slate-900 text-sm">Menu Thao Tác</span>
             </div>
@@ -189,23 +194,26 @@ export default function Sidebar({
             ))}
           </div>
 
-          {/* PHÂN QUYỀN VAI TRÒ */}
+          {/* HIỂN THỊ VAI TRÒ ĐƯỢC CHỈ ĐỊNH (CỐ ĐỊNH THEO TÀI KHOẢN) */}
           <div className="pt-3 border-t border-slate-100">
-            <div className="text-[11px] font-black uppercase text-slate-400 tracking-wider mb-2 px-1">
-              Phân Quyền Vai Trò
+            <div className="flex items-center justify-between text-[11px] font-black uppercase text-slate-400 tracking-wider mb-2 px-1">
+              <span>Vai Trò Của Bạn</span>
+              <span className="flex items-center gap-1 text-[10px] text-slate-400 font-bold lowercase">
+                <Lock className="w-3 h-3 text-slate-400" />
+                <span>cố định</span>
+              </span>
             </div>
-            <select
-              value={role}
-              onChange={(e) => onRoleChange(e.target.value)}
-              className="w-full py-2.5 px-3 rounded-xl border border-slate-300 text-xs font-bold bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
-            >
-              <option value="citizen">👤 1. Người dân Thôn 6</option>
-              <option value="supporter">🤝 2. Người hỗ trợ số</option>
-              <option value="tech_team">👥 3. Tổ công nghệ số</option>
-              <option value="admin">⚙️ 4. Quản trị viên Xã</option>
-            </select>
-            <div className="mt-2 px-1">
+            
+            <div className="p-2.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1.5 shadow-2xs">
               <RoleBadge role={role} showDesc={true} />
+              
+              <p className="text-[10px] text-slate-400 font-medium leading-tight pt-1 border-t border-slate-200/60">
+                {user ? (
+                  <span>🔒 Vai trò được cấp theo tài khoản, không tự ý chuyển đổi.</span>
+                ) : (
+                  <span>👤 Chế độ Người dân (Khách). Đăng nhập để nhận đúng vai trò được cấp.</span>
+                )}
+              </p>
             </div>
           </div>
 
@@ -214,11 +222,11 @@ export default function Sidebar({
         {/* HOTLINE CẦM TAY CHỈ VIỆC */}
         <div className="pt-3 border-t border-slate-100 text-center">
           <a 
-            href="tel:0903382277"
+            href={`tel:${hotlinePhone.replace(/[^0-9]/g, '')}`}
             className="inline-flex items-center gap-1.5 text-xs font-black text-emerald-800 bg-emerald-100 hover:bg-emerald-200 px-3 py-2 rounded-xl border border-emerald-300 w-full justify-center shadow-xs transition"
           >
             <PhoneCall className="w-4 h-4 text-emerald-700 animate-pulse" />
-            <span>Hotline Cầm Tay Chỉ Việc: 0903.382.277</span>
+            <span>Hotline Cầm Tay Chỉ Việc: {hotlinePhone}</span>
           </a>
         </div>
 
